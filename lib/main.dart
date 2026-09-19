@@ -2,18 +2,26 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
-import 'firebase_options.dart';void main() async {
+import 'firebase_options.dart';
+
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp(
-  options:
- DefaultFirebaseOptions.currentPlatform,
-);
-await FirebaseAppCheck.instance.activate(
-  providerAndroid: const
- AndroidDebugProvider(),
-);                      
-    runApp(const AivoraApp());
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
+  await FirebaseAppCheck.instance.activate(
+    androidProvider: AndroidDebugProvider(
+      debugToken: const String.fromEnvironment(
+        'APP_CHECK_DEBUG_TOKEN',
+      ),
+    ),
+  );
+
+  runApp(const AivoraApp());
 }
+
 class AivoraApp extends StatelessWidget {
   const AivoraApp({super.key});
 
@@ -162,9 +170,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-
           const SizedBox(height: 28),
-
           const Text(
             'What will you create?',
             style: TextStyle(
@@ -172,9 +178,7 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 8),
-
           const Text(
             'One AI workspace for your ideas, content and creativity.',
             style: TextStyle(
@@ -182,9 +186,7 @@ class _HomePageState extends State<HomePage> {
               fontSize: 14,
             ),
           ),
-
           const SizedBox(height: 20),
-
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
@@ -228,23 +230,21 @@ class _HomePageState extends State<HomePage> {
                   width: double.infinity,
                   child: FilledButton.icon(
                     onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChatPage(),
-                      ),
-                    );
-                  },
-                  icon: const Icon(Icons.chat_rounded),
-                  label: const Text('Start AI Chat'),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ChatPage(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.chat_rounded),
+                    label: const Text('Start AI Chat'),
                   ),
                 ),
               ],
             ),
           ),
-
           const SizedBox(height: 28),
-
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -265,9 +265,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-
           const SizedBox(height: 8),
-
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -283,9 +281,7 @@ class _HomePageState extends State<HomePage> {
               return _toolCard(tools[index]);
             },
           ),
-
           const SizedBox(height: 28),
-
           const Text(
             'Everything you need',
             style: TextStyle(
@@ -293,15 +289,22 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
-
           const SizedBox(height: 14),
-
-          _feature(Icons.bolt_rounded, 'Fast AI generation',
-              'Create content in seconds'),
-          _feature(Icons.security_rounded, 'Private workspace',
-              'Your creations stay organized'),
-          _feature(Icons.devices_rounded, 'All-in-one AI',
-              'Text, image, video, voice and PDF tools'),
+          _feature(
+            Icons.bolt_rounded,
+            'Fast AI generation',
+            'Create content in seconds',
+          ),
+          _feature(
+            Icons.security_rounded,
+            'Private workspace',
+            'Your creations stay organized',
+          ),
+          _feature(
+            Icons.devices_rounded,
+            'All-in-one AI',
+            'Text, image, video, voice and PDF tools',
+          ),
         ],
       ),
     );
@@ -442,7 +445,8 @@ class _HomePageState extends State<HomePage> {
                 width: 43,
                 height: 43,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6D4AFF).withValues(alpha: 0.16),
+                  color: const Color(0xFF6D4AFF)
+                      .withValues(alpha: 0.16),
                   borderRadius: BorderRadius.circular(13),
                 ),
                 child: Icon(
@@ -467,7 +471,11 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _feature(IconData icon, String title, String subtitle) {
+  Widget _feature(
+    IconData icon,
+    String title,
+    String subtitle,
+  ) {
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(14),
@@ -477,14 +485,19 @@ class _HomePageState extends State<HomePage> {
       ),
       child: Row(
         children: [
-          Icon(icon, color: const Color(0xFFAA8CFF)),
+          Icon(
+            icon,
+            color: const Color(0xFFAA8CFF),
+          ),
           const SizedBox(width: 14),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
                 title,
-                style: const TextStyle(fontWeight: FontWeight.bold),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 3),
               Text(
@@ -502,9 +515,6 @@ class _HomePageState extends State<HomePage> {
   }
 }
 
-
-
-
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
@@ -513,7 +523,8 @@ class ChatPage extends StatefulWidget {
 }
 
 class _ChatPageState extends State<ChatPage> {
-  final TextEditingController _controller = TextEditingController();
+  final TextEditingController _controller =
+      TextEditingController();
 
   final List<Map<String, String>> _messages = [];
 
@@ -540,7 +551,8 @@ class _ChatPageState extends State<ChatPage> {
         Content.text(text),
       ]);
 
-      final aiText = response.text ?? 'I could not generate a response.';
+      final aiText =
+          response.text ?? 'I could not generate a response.';
 
       if (!mounted) return;
 
@@ -556,7 +568,8 @@ class _ChatPageState extends State<ChatPage> {
       setState(() {
         _messages.add({
           'sender': 'ai',
-          'text': 'Sorry, something went wrong. Please try again.',
+          'text':
+              'Sorry, something went wrong. Please try again.',
         });
       });
     }
@@ -590,15 +603,19 @@ class _ChatPageState extends State<ChatPage> {
                     itemCount: _messages.length,
                     itemBuilder: (context, index) {
                       final message = _messages[index];
-                      final isUser = message['sender'] == 'user';
+                      final isUser =
+                          message['sender'] == 'user';
 
                       return Align(
                         alignment: isUser
                             ? Alignment.centerRight
                             : Alignment.centerLeft,
                         child: Container(
-                          margin: const EdgeInsets.only(bottom: 12),
-                          padding: const EdgeInsets.symmetric(
+                          margin: const EdgeInsets.only(
+                            bottom: 12,
+                          ),
+                          padding:
+                              const EdgeInsets.symmetric(
                             horizontal: 16,
                             vertical: 12,
                           ),
@@ -606,7 +623,8 @@ class _ChatPageState extends State<ChatPage> {
                             color: isUser
                                 ? const Color(0xFF7C4DFF)
                                 : const Color(0xFF1B1B22),
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius:
+                                BorderRadius.circular(16),
                           ),
                           child: Text(
                             message['text']!,
@@ -633,7 +651,8 @@ class _ChatPageState extends State<ChatPage> {
                       decoration: InputDecoration(
                         hintText: 'Ask AIVORA AI...',
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
+                          borderRadius:
+                              BorderRadius.circular(16),
                         ),
                       ),
                     ),
