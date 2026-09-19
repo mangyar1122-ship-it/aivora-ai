@@ -12,7 +12,7 @@ void main() async {
   );
 
   await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidDebugProvider(
+    providerAndroid: AndroidDebugProvider(
       debugToken: const String.fromEnvironment(
         'APP_CHECK_DEBUG_TOKEN',
       ),
@@ -166,11 +166,15 @@ class _HomePageState extends State<HomePage> {
               ),
               IconButton(
                 onPressed: () {},
-                icon: const Icon(Icons.notifications_none_rounded),
+                icon: const Icon(
+                  Icons.notifications_none_rounded,
+                ),
               ),
             ],
           ),
+
           const SizedBox(height: 28),
+
           const Text(
             'What will you create?',
             style: TextStyle(
@@ -178,7 +182,9 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 8),
+
           const Text(
             'One AI workspace for your ideas, content and creativity.',
             style: TextStyle(
@@ -186,7 +192,9 @@ class _HomePageState extends State<HomePage> {
               fontSize: 14,
             ),
           ),
+
           const SizedBox(height: 20),
+
           Container(
             padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
@@ -209,7 +217,9 @@ class _HomePageState extends State<HomePage> {
                   color: Color(0xFFB99CFF),
                   size: 28,
                 ),
+
                 const SizedBox(height: 12),
+
                 const Text(
                   'AI Assistant',
                   style: TextStyle(
@@ -217,7 +227,9 @@ class _HomePageState extends State<HomePage> {
                     fontWeight: FontWeight.bold,
                   ),
                 ),
+
                 const SizedBox(height: 6),
+
                 const Text(
                   'Ask anything, write anything, create anything.',
                   style: TextStyle(
@@ -225,7 +237,9 @@ class _HomePageState extends State<HomePage> {
                     fontSize: 13,
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
                 SizedBox(
                   width: double.infinity,
                   child: FilledButton.icon(
@@ -233,7 +247,8 @@ class _HomePageState extends State<HomePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => const ChatPage(),
+                          builder: (context) =>
+                              const ChatPage(),
                         ),
                       );
                     },
@@ -244,9 +259,12 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+
           const SizedBox(height: 28),
+
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment:
+                MainAxisAlignment.spaceBetween,
             children: [
               const Text(
                 'Popular Tools',
@@ -265,10 +283,13 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
+
           const SizedBox(height: 8),
+
           GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            physics:
+                const NeverScrollableScrollPhysics(),
             itemCount: 6,
             gridDelegate:
                 const SliverGridDelegateWithFixedCrossAxisCount(
@@ -281,7 +302,9 @@ class _HomePageState extends State<HomePage> {
               return _toolCard(tools[index]);
             },
           ),
+
           const SizedBox(height: 28),
+
           const Text(
             'Everything you need',
             style: TextStyle(
@@ -289,17 +312,21 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 14),
+
           _feature(
             Icons.bolt_rounded,
             'Fast AI generation',
             'Create content in seconds',
           ),
+
           _feature(
             Icons.security_rounded,
             'Private workspace',
             'Your creations stay organized',
           ),
+
           _feature(
             Icons.devices_rounded,
             'All-in-one AI',
@@ -314,9 +341,11 @@ class _HomePageState extends State<HomePage> {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment:
+            CrossAxisAlignment.start,
         children: [
           const SizedBox(height: 10),
+
           const Text(
             'AI Tools',
             style: TextStyle(
@@ -324,28 +353,40 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 6),
+
           const Text(
             'Choose a tool and start creating.',
-            style: TextStyle(color: Colors.white60),
+            style: TextStyle(
+              color: Colors.white60,
+            ),
           ),
+
           const SizedBox(height: 22),
+
           TextField(
             decoration: InputDecoration(
               hintText: 'Search tools...',
-              prefixIcon: const Icon(Icons.search_rounded),
+              prefixIcon:
+                  const Icon(Icons.search_rounded),
               filled: true,
-              fillColor: const Color(0xFF11131A),
+              fillColor:
+                  const Color(0xFF11131A),
               border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
+                borderRadius:
+                    BorderRadius.circular(16),
                 borderSide: BorderSide.none,
               ),
             ),
           ),
+
           const SizedBox(height: 24),
+
           GridView.builder(
             shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
+            physics:
+                const NeverScrollableScrollPhysics(),
             itemCount: tools.length,
             gridDelegate:
                 const SliverGridDelegateWithFixedCrossAxisCount(
@@ -366,14 +407,17 @@ class _HomePageState extends State<HomePage> {
   Widget _library() {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+            MainAxisAlignment.center,
         children: [
-          Icon(
+          const Icon(
             Icons.folder_copy_outlined,
             size: 70,
             color: Colors.deepPurpleAccent,
           ),
+
           const SizedBox(height: 18),
+
           const Text(
             'Your Library',
             style: TextStyle(
@@ -381,10 +425,14 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 8),
+
           const Text(
             'Your generated content will appear here.',
-            style: TextStyle(color: Colors.white54),
+            style: TextStyle(
+              color: Colors.white54,
+            ),
           ),
         ],
       ),
@@ -394,17 +442,21 @@ class _HomePageState extends State<HomePage> {
   Widget _profile() {
     return Center(
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisAlignment:
+            MainAxisAlignment.center,
         children: [
           const CircleAvatar(
             radius: 42,
-            backgroundColor: Color(0xFF6D4AFF),
+            backgroundColor:
+                Color(0xFF6D4AFF),
             child: Icon(
               Icons.person_rounded,
               size: 42,
             ),
           ),
+
           const SizedBox(height: 18),
+
           const Text(
             'AIVORA AI',
             style: TextStyle(
@@ -412,15 +464,23 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.bold,
             ),
           ),
+
           const SizedBox(height: 6),
+
           const Text(
             'Create. Chat. Imagine.',
-            style: TextStyle(color: Colors.white54),
+            style: TextStyle(
+              color: Colors.white54,
+            ),
           ),
+
           const SizedBox(height: 25),
+
           OutlinedButton.icon(
             onPressed: () {},
-            icon: const Icon(Icons.settings_rounded),
+            icon: const Icon(
+              Icons.settings_rounded,
+            ),
             label: const Text('Settings'),
           ),
         ],
@@ -428,39 +488,53 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _toolCard(Map<String, dynamic> tool) {
+  Widget _toolCard(
+    Map<String, dynamic> tool,
+  ) {
     return Material(
       color: const Color(0xFF11131A),
-      borderRadius: BorderRadius.circular(18),
+      borderRadius:
+          BorderRadius.circular(18),
       child: InkWell(
-        borderRadius: BorderRadius.circular(18),
+        borderRadius:
+            BorderRadius.circular(18),
         onTap: () {},
         child: Padding(
-          padding: const EdgeInsets.all(15),
+          padding:
+              const EdgeInsets.all(15),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment:
+                CrossAxisAlignment.start,
+            mainAxisAlignment:
+                MainAxisAlignment.center,
             children: [
               Container(
                 width: 43,
                 height: 43,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF6D4AFF)
-                      .withValues(alpha: 0.16),
-                  borderRadius: BorderRadius.circular(13),
+                  color:
+                      const Color(0xFF6D4AFF)
+                          .withValues(alpha: 0.16),
+                  borderRadius:
+                      BorderRadius.circular(13),
                 ),
                 child: Icon(
                   tool['icon'],
-                  color: const Color(0xFFB59AFF),
+                  color:
+                      const Color(0xFFB59AFF),
                 ),
               ),
+
               const SizedBox(height: 12),
+
               Text(
                 tool['name'],
                 maxLines: 2,
-                overflow: TextOverflow.ellipsis,
+                overflow:
+                    TextOverflow.ellipsis,
                 style: const TextStyle(
-                  fontWeight: FontWeight.w600,
+                  fontWeight:
+                      FontWeight.w600,
                   fontSize: 14,
                 ),
               ),
@@ -477,37 +551,54 @@ class _HomePageState extends State<HomePage> {
     String subtitle,
   ) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      padding: const EdgeInsets.all(14),
+      margin:
+          const EdgeInsets.only(
+        bottom: 10,
+      ),
+      padding:
+          const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: const Color(0xFF11131A),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius:
+            BorderRadius.circular(16),
       ),
       child: Row(
         children: [
           Icon(
             icon,
-            color: const Color(0xFFAA8CFF),
+            color:
+                const Color(0xFFAA8CFF),
           ),
+
           const SizedBox(width: 14),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  fontWeight: FontWeight.bold,
+
+          Expanded(
+            child: Column(
+              crossAxisAlignment:
+                  CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style:
+                      const TextStyle(
+                    fontWeight:
+                        FontWeight.bold,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 3),
-              Text(
-                subtitle,
-                style: const TextStyle(
-                  color: Colors.white54,
-                  fontSize: 12,
+
+                const SizedBox(height: 3),
+
+                Text(
+                  subtitle,
+                  style:
+                      const TextStyle(
+                    color:
+                        Colors.white54,
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -519,17 +610,22 @@ class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
 
   @override
-  State<ChatPage> createState() => _ChatPageState();
+  State<ChatPage> createState() =>
+      _ChatPageState();
 }
 
-class _ChatPageState extends State<ChatPage> {
-  final TextEditingController _controller =
+class _ChatPageState
+    extends State<ChatPage> {
+  final TextEditingController
+      _controller =
       TextEditingController();
 
-  final List<Map<String, String>> _messages = [];
+  final List<Map<String, String>>
+      _messages = [];
 
   Future<void> _sendMessage() async {
-    final text = _controller.text.trim();
+    final text =
+        _controller.text.trim();
 
     if (text.isEmpty) return;
 
@@ -543,16 +639,20 @@ class _ChatPageState extends State<ChatPage> {
     _controller.clear();
 
     try {
-      final model = FirebaseAI.googleAI().generativeModel(
+      final model =
+          FirebaseAI.googleAI()
+              .generativeModel(
         model: 'gemini-3.8-flash',
       );
 
-      final response = await model.generateContent([
+      final response =
+          await model.generateContent([
         Content.text(text),
       ]);
 
       final aiText =
-          response.text ?? 'I could not generate a response.';
+          response.text ??
+              'I could not generate a response.';
 
       if (!mounted) return;
 
@@ -582,11 +682,15 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(
+    BuildContext context,
+  ) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Chat'),
+        title:
+            const Text('AI Chat'),
       ),
+
       body: Column(
         children: [
           Expanded(
@@ -594,42 +698,66 @@ class _ChatPageState extends State<ChatPage> {
                 ? const Center(
                     child: Text(
                       'Hello! I am AIVORA AI.\nHow can I help you?',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(fontSize: 18),
+                      textAlign:
+                          TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 18,
+                      ),
                     ),
                   )
                 : ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _messages.length,
-                    itemBuilder: (context, index) {
-                      final message = _messages[index];
+                    padding:
+                        const EdgeInsets.all(
+                            16),
+                    itemCount:
+                        _messages.length,
+                    itemBuilder:
+                        (context, index) {
+                      final message =
+                          _messages[index];
+
                       final isUser =
-                          message['sender'] == 'user';
+                          message['sender'] ==
+                              'user';
 
                       return Align(
                         alignment: isUser
-                            ? Alignment.centerRight
-                            : Alignment.centerLeft,
-                        child: Container(
-                          margin: const EdgeInsets.only(
+                            ? Alignment
+                                .centerRight
+                            : Alignment
+                                .centerLeft,
+                        child:
+                            Container(
+                          margin:
+                              const EdgeInsets
+                                  .only(
                             bottom: 12,
                           ),
                           padding:
-                              const EdgeInsets.symmetric(
+                              const EdgeInsets
+                                  .symmetric(
                             horizontal: 16,
                             vertical: 12,
                           ),
-                          decoration: BoxDecoration(
+                          decoration:
+                              BoxDecoration(
                             color: isUser
-                                ? const Color(0xFF7C4DFF)
-                                : const Color(0xFF1B1B22),
+                                ? const Color(
+                                    0xFF7C4DFF)
+                                : const Color(
+                                    0xFF1B1B22),
                             borderRadius:
-                                BorderRadius.circular(16),
+                                BorderRadius
+                                    .circular(
+                              16,
+                            ),
                           ),
                           child: Text(
                             message['text']!,
-                            style: const TextStyle(
-                              color: Colors.white,
+                            style:
+                                const TextStyle(
+                              color:
+                                  Colors.white,
                               fontSize: 16,
                             ),
                           ),
@@ -638,28 +766,43 @@ class _ChatPageState extends State<ChatPage> {
                     },
                   ),
           ),
+
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.all(12),
+              padding:
+                  const EdgeInsets.all(12),
               child: Row(
                 children: [
                   Expanded(
                     child: TextField(
-                      controller: _controller,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _sendMessage(),
-                      decoration: InputDecoration(
-                        hintText: 'Ask AIVORA AI...',
-                        border: OutlineInputBorder(
+                      controller:
+                          _controller,
+                      textInputAction:
+                          TextInputAction.send,
+                      onSubmitted:
+                          (_) =>
+                              _sendMessage(),
+                      decoration:
+                          InputDecoration(
+                        hintText:
+                            'Ask AIVORA AI...',
+                        border:
+                            OutlineInputBorder(
                           borderRadius:
-                              BorderRadius.circular(16),
+                              BorderRadius
+                                  .circular(
+                            16,
+                          ),
                         ),
                       ),
                     ),
                   ),
+
                   const SizedBox(width: 8),
+
                   IconButton(
-                    onPressed: _sendMessage,
+                    onPressed:
+                        _sendMessage,
                     icon: const Icon(
                       Icons.send_rounded,
                       size: 32,
