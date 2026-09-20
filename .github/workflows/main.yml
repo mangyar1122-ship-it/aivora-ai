@@ -33,6 +33,9 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Analyze Flutter project
+        run: flutter analyze
+
       - name: Build APK
         env:
           APP_CHECK_DEBUG_TOKEN: ${{ secrets.APP_CHECK_DEBUG_TOKEN }}
