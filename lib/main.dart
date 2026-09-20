@@ -5,6 +5,9 @@ import 'package:flutter/material.dart';
 import 'app/app.dart';
 import 'firebase_options.dart';
 
+const appCheckDebugToken =
+    String.fromEnvironment('APP_CHECK_DEBUG_TOKEN');
+
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -13,7 +16,11 @@ Future<void> main() async {
   );
 
   await FirebaseAppCheck.instance.activate(
-    androidProvider: AndroidProvider.debug,
+    providerAndroid: AndroidDebugProvider(
+      debugToken: appCheckDebugToken.isEmpty
+          ? null
+          : appCheckDebugToken,
+    ),
   );
 
   runApp(const AivoraApp());
