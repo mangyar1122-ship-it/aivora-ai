@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "405212531300",
+    "project_id": "aivora-ai-44b35",
+    "storage_bucket": "aivora-ai-44b35.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405212531300:android:0ef26349f14a7acc2d2d71",
+        "android_client_info": {
+          "package_name": "com.aivora.ai"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSIltePeeADoX3U6yYctjeO_tfQ2tQwxg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:405212531300:android:e2744370438626892d2d71",
+        "android_client_info": {
+          "package_name": "com.aivora.ai_vora"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCSIltePeeADoX3U6yYctjeO_tfQ2tQwxg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
