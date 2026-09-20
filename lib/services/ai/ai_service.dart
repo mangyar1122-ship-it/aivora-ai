@@ -1,9 +1,3 @@
-/// AIVORA AI - Core AI Service
-///
-/// This file defines the common interface for all AI providers.
-/// Gemini, OpenAI, Claude, and other providers can be connected
-/// later without changing the rest of the application.
-
 class AiResponse {
   final String text;
   final bool success;
