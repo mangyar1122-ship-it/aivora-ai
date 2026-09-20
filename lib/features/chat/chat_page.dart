@@ -1,7 +1,6 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 
-import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 
 class ChatPage extends StatefulWidget {
@@ -45,7 +44,9 @@ Be helpful, clear and concise.
   Future<void> _sendMessage() async {
     final text = _controller.text.trim();
 
-    if (text.isEmpty || _isLoading) return;
+    if (text.isEmpty || _isLoading) {
+      return;
+    }
 
     _controller.clear();
 
@@ -56,6 +57,7 @@ Be helpful, clear and concise.
           isUser: true,
         ),
       );
+
       _isLoading = true;
     });
 
@@ -68,7 +70,9 @@ Be helpful, clear and concise.
 
       final reply = response.text?.trim();
 
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         _messages.add(
@@ -79,19 +83,22 @@ Be helpful, clear and concise.
             isUser: false,
           ),
         );
+
         _isLoading = false;
       });
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted) {
+        return;
+      }
 
       setState(() {
         _messages.add(
-          const _ChatMessage(
-            text:
-                'Sorry, I could not connect to AIVORA AI right now. Please try again.',
+          _ChatMessage(
+            text: 'AIVORA ERROR:\n\n$e',
             isUser: false,
           ),
         );
+
         _isLoading = false;
       });
     }
@@ -101,7 +108,9 @@ Be helpful, clear and concise.
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (!_scrollController.hasClients) return;
+      if (!_scrollController.hasClients) {
+        return;
+      }
 
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
@@ -129,8 +138,12 @@ Be helpful, clear and concise.
           ),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_rounded),
-          onPressed: () => Navigator.pop(context),
+          icon: const Icon(
+            Icons.arrow_back_rounded,
+          ),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
       ),
       body: Column(
@@ -148,7 +161,9 @@ Be helpful, clear and concise.
                     ),
                     itemCount: _messages.length,
                     itemBuilder: (context, index) {
-                      return _buildMessage(_messages[index]);
+                      return _buildMessage(
+                        _messages[index],
+                      );
                     },
                   ),
           ),
@@ -209,13 +224,16 @@ Be helpful, clear and concise.
     final isUser = message.isUser;
 
     return Align(
-      alignment:
-          isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isUser
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       child: Container(
         constraints: const BoxConstraints(
           maxWidth: 320,
         ),
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsets.only(
+          bottom: 12,
+        ),
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 12,
@@ -223,7 +241,9 @@ Be helpful, clear and concise.
         decoration: BoxDecoration(
           color: isUser
               ? AppTheme.primary
-              : Theme.of(context).colorScheme.surface,
+              : Theme.of(context)
+                  .colorScheme
+                  .surface,
           borderRadius: BorderRadius.circular(18),
         ),
         child: Text(
@@ -242,21 +262,29 @@ Be helpful, clear and concise.
     return SafeArea(
       top: false,
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        padding: const EdgeInsets.fromLTRB(
+          12,
+          8,
+          12,
+          12,
+        ),
         child: Row(
           children: [
             Expanded(
               child: TextField(
                 controller: _controller,
                 textInputAction: TextInputAction.send,
-                onSubmitted: (_) => _sendMessage(),
+                onSubmitted: (_) {
+                  _sendMessage();
+                },
                 minLines: 1,
                 maxLines: 5,
                 decoration: InputDecoration(
                   hintText: 'Message AIVORA AI...',
                   filled: true,
-                  fillColor:
-                      Theme.of(context).colorScheme.surface,
+                  fillColor: Theme.of(context)
+                      .colorScheme
+                      .surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none,
@@ -266,7 +294,8 @@ Be helpful, clear and concise.
             ),
             const SizedBox(width: 8),
             IconButton.filled(
-              onPressed: _isLoading ? null : _sendMessage,
+              onPressed:
+                  _isLoading ? null : _sendMessage,
               icon: _isLoading
                   ? const SizedBox(
                       width: 20,
@@ -275,7 +304,9 @@ Be helpful, clear and concise.
                         strokeWidth: 2,
                       ),
                     )
-                  : const Icon(Icons.send_rounded),
+                  : const Icon(
+                      Icons.send_rounded,
+                    ),
             ),
           ],
         ),
