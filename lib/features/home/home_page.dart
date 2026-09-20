@@ -131,31 +131,23 @@ class _HomePageState extends State<HomePage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildHeader(),
-
           const SizedBox(height: 28),
-
           Text(
             'What will you create?',
             style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                   fontWeight: FontWeight.w800,
                 ),
           ),
-
           const SizedBox(height: 8),
-
           Text(
             'One AI workspace for your ideas, content and creativity.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textSecondary,
                 ),
           ),
-
           const SizedBox(height: 22),
-
           _buildAssistantCard(),
-
           const SizedBox(height: 28),
-
           _buildSectionTitle(
             title: 'Popular Tools',
             action: 'View all',
@@ -165,9 +157,7 @@ class _HomePageState extends State<HomePage> {
               });
             },
           ),
-
           const SizedBox(height: 14),
-
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
@@ -182,27 +172,21 @@ class _HomePageState extends State<HomePage> {
               return _buildToolCard(_tools[index]);
             },
           ),
-
           const SizedBox(height: 30),
-
           _buildSectionTitle(
             title: 'Why AIVORA?',
           ),
-
           const SizedBox(height: 14),
-
           _buildFeature(
             icon: Icons.bolt_rounded,
             title: 'Fast AI generation',
             subtitle: 'Create content quickly with AI.',
           ),
-
           _buildFeature(
             icon: Icons.auto_awesome_rounded,
             title: 'All-in-one workspace',
             subtitle: 'Text, image, video, voice and PDF tools.',
           ),
-
           _buildFeature(
             icon: Icons.folder_rounded,
             title: 'Organized library',
@@ -297,9 +281,7 @@ class _HomePageState extends State<HomePage> {
               size: 27,
             ),
           ),
-
           const SizedBox(height: 16),
-
           const Text(
             'AI Assistant',
             style: TextStyle(
@@ -308,9 +290,7 @@ class _HomePageState extends State<HomePage> {
               fontWeight: FontWeight.w800,
             ),
           ),
-
           const SizedBox(height: 7),
-
           const Text(
             'Ask anything, write anything, create anything.',
             style: TextStyle(
@@ -318,9 +298,7 @@ class _HomePageState extends State<HomePage> {
               fontSize: 14,
             ),
           ),
-
           const SizedBox(height: 18),
-
           SizedBox(
             width: double.infinity,
             child: FilledButton.icon(
@@ -371,9 +349,23 @@ class _HomePageState extends State<HomePage> {
       child: InkWell(
         borderRadius: BorderRadius.circular(20),
         onTap: () {
+          // AI Chat is now connected.
+          if (tool.name == 'AI Chat') {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const ChatPage(),
+              ),
+            );
+            return;
+          }
+
+          // Other tools will be connected later.
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('${tool.name} will be connected next.'),
+              content: Text(
+                '${tool.name} will be connected next.',
+              ),
             ),
           );
         },
@@ -396,9 +388,7 @@ class _HomePageState extends State<HomePage> {
                   size: 24,
                 ),
               ),
-
               const SizedBox(height: 12),
-
               Text(
                 tool.name,
                 maxLines: 1,
@@ -408,9 +398,7 @@ class _HomePageState extends State<HomePage> {
                   fontSize: 14,
                 ),
               ),
-
               const SizedBox(height: 3),
-
               Text(
                 tool.subtitle,
                 maxLines: 1,
@@ -454,9 +442,7 @@ class _HomePageState extends State<HomePage> {
               color: AppTheme.primary,
             ),
           ),
-
           const SizedBox(width: 13),
-
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -495,18 +481,14 @@ class _HomePageState extends State<HomePage> {
                   fontWeight: FontWeight.w800,
                 ),
           ),
-
           const SizedBox(height: 7),
-
           Text(
             'Choose a tool and start creating.',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   color: AppTheme.textSecondary,
                 ),
           ),
-
           const SizedBox(height: 20),
-
           TextField(
             decoration: InputDecoration(
               hintText: 'Search tools...',
@@ -519,9 +501,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
           ),
-
           const SizedBox(height: 20),
-
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
