@@ -30,7 +30,7 @@ class _ChatPageState extends State<ChatPage> {
 
     final model = FirebaseAI.googleAI().generativeModel(
       model: 'gemini-3.8-flash',
-      config: generationConfig,
+      generationConfig: generationConfig,
       systemInstruction: Content.system(
         '''
 You are AIVORA AI, the AI assistant inside the AIVORA AI app.
@@ -457,8 +457,7 @@ Please try again.
             ),
             const SizedBox(width: 8),
             IconButton.filled(
-              onPressed:
-                  _isLoading ? null : _sendMessage,
+              onPressed: _isLoading ? null : _sendMessage,
               icon: _isLoading
                   ? const SizedBox(
                       width: 20,
