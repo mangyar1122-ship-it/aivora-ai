@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../core/constants/app_constants.dart';
+import '../core/theme/app_theme.dart';
+
 class AivoraApp extends StatelessWidget {
   const AivoraApp({super.key});
 
@@ -7,17 +10,43 @@ class AivoraApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'AIVORA AI',
-      theme: ThemeData(
-        brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF08090D),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF7C5CFF),
-          brightness: Brightness.dark,
-        ),
-        useMaterial3: true,
+
+      title: AppConstants.appName,
+
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: ThemeMode.system,
+
+      home: const AivoraHome(),
+    );
+  }
+}
+
+class AivoraHome extends StatelessWidget {
+  const AivoraHome({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(AppConstants.appName),
       ),
-      home: const Placeholder(),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              AppConstants.appName,
+              style: Theme.of(context).textTheme.headlineMedium,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              AppConstants.tagline,
+              style: Theme.of(context).textTheme.bodyLarge,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
