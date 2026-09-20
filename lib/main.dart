@@ -494,8 +494,44 @@ class _HomePageState extends State<HomePage> {
 
 
 
-class ChatPage extends StatelessWidget {
+
+class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
+
+  @override
+  State<ChatPage> createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  final TextEditingController _controller = TextEditingController();
+
+  final List<Map<String, String>> _messages = [];
+
+  void _sendMessage() {
+    final text = _controller.text.trim();
+
+    if (text.isEmpty) return;
+
+    setState(() {
+      _messages.add({
+        'sender': 'user',
+        'text': text,
+      });
+
+      _messages.add({
+        'sender': 'ai',
+        'text': 'I received your message. AI response will be connected next.',
+      });
+    });
+
+    _controller.clear();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -505,14 +541,49 @@ class ChatPage extends StatelessWidget {
       ),
       body: Column(
         children: [
-          const Expanded(
-            child: Center(
-              child: Text(
-                'Hello! I am AIVORA AI.\nHow can I help you?',
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 18),
-              ),
-            ),
+          Expanded(
+            child: _messages.isEmpty
+                ? const Center(
+                    child: Text(
+                      'Hello! I am AIVORA AI.\nHow can I help you?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  )
+                : ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: _messages.length,
+                    itemBuilder: (context, index) {
+                      final message = _messages[index];
+                      final isUser = message['sender'] == 'user';
+
+                      return Align(
+                        alignment: isUser
+                            ? Alignment.centerRight
+                            : Alignment.centerLeft,
+                        child: Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            color: isUser
+                                ? const Color(0xFF7C4DFF)
+                                : const Color(0xFF1B1B22),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Text(
+                            message['text']!,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
           ),
           SafeArea(
             child: Padding(
@@ -521,6 +592,9 @@ class ChatPage extends StatelessWidget {
                 children: [
                   Expanded(
                     child: TextField(
+                      controller: _controller,
+                      textInputAction: TextInputAction.send,
+                      onSubmitted: (_) => _sendMessage(),
                       decoration: InputDecoration(
                         hintText: 'Ask AIVORA AI...',
                         border: OutlineInputBorder(
@@ -531,8 +605,11 @@ class ChatPage extends StatelessWidget {
                   ),
                   const SizedBox(width: 8),
                   IconButton(
-                    onPressed: () {},
-                    icon: const Icon(Icons.send_rounded),
+                    onPressed: _sendMessage,
+                    icon: const Icon(
+                      Icons.send_rounded,
+                      size: 32,
+                    ),
                   ),
                 ],
               ),
