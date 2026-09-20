@@ -15,7 +15,6 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
 
   final List<_ChatMessage> _messages = [];
-
   late final ChatSession _chat;
 
   bool _isLoading = false;
@@ -24,8 +23,16 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
+    // Speed optimization:
+    // Gemini 3.x supports LOW thinking level.
+    // This keeps normal chat responses faster.
+    final thinkingConfig = ThinkingConfig.withThinkingLevel(
+      ThinkingLevel.low,
+    );
+
     final generationConfig = GenerationConfig(
       maxOutputTokens: 512,
+      thinkingConfig: thinkingConfig,
     );
 
     final model = FirebaseAI.googleAI().generativeModel(
@@ -36,7 +43,6 @@ class _ChatPageState extends State<ChatPage> {
 You are AIVORA AI, the AI assistant inside the AIVORA AI app.
 
 Your name is AIVORA AI.
-
 Do not introduce yourself as Gemini unless the user specifically asks
 which underlying model is being used.
 
@@ -105,11 +111,13 @@ User message:
 $text
 
 [AIVORA RUNTIME DATE/TIME]
+
 Current date: $currentDate
 Current time: $currentTime
 Day: $weekday
 
 IMPORTANT:
+
 Treat the AIVORA runtime date/time above as the authoritative current
 date and time for this conversation.
 
@@ -209,6 +217,7 @@ Do not use an older training date as today's date.
   String _getFriendlyErrorMessage(Object error) {
     final errorText = error.toString().toLowerCase();
 
+    // Gemini quota / rate-limit errors.
     if (errorText.contains('quota') ||
         errorText.contains('rate limit') ||
         errorText.contains('429') ||
@@ -222,6 +231,18 @@ This is a Gemini API quota limit, not a problem with your message or the AIVORA 
 ''';
     }
 
+    // Temporary Gemini overload.
+    if (errorText.contains('overloaded') ||
+        errorText.contains('unavailable') ||
+        errorText.contains('prefill queue')) {
+      return '''
+AIVORA AI is temporarily busy because the AI service is experiencing high demand.
+
+Please wait a few seconds and try again.
+''';
+    }
+
+    // Firebase App Check.
     if (errorText.contains('app check') ||
         errorText.contains('attestation') ||
         errorText.contains('403')) {
@@ -232,6 +253,7 @@ Please make sure you are using the latest AIVORA AI build and try again.
 ''';
     }
 
+    // Network errors.
     if (errorText.contains('network') ||
         errorText.contains('socket') ||
         errorText.contains('connection')) {
