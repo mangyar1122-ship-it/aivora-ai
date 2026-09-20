@@ -24,27 +24,52 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
+    final generationConfig = GenerationConfig(
+      maxOutputTokens: 512,
+    );
+
     final model = FirebaseAI.googleAI().generativeModel(
       model: 'gemini-3.8-flash',
+      config: generationConfig,
       systemInstruction: Content.system(
         '''
 You are AIVORA AI, the AI assistant inside the AIVORA AI app.
 
 Your name is AIVORA AI.
-Do not introduce yourself as Gemini unless the user specifically asks which underlying model is being used.
 
-Be helpful, clear, concise and natural.
+Do not introduce yourself as Gemini unless the user specifically asks
+which underlying model is being used.
 
-IMPORTANT:
-The app will provide the current date and time with every user message.
-When answering questions about today, tomorrow, yesterday, current date or current time,
-use the app-provided runtime date/time as the authoritative current date/time.
+Be helpful, accurate, concise and natural.
 
-Never invent an old date such as 2025 when the app provides a newer date.
+IMPORTANT CURRENT-DATE RULE:
 
-For general factual questions, answer from your available knowledge.
-If a question requires live/current information that you do not have,
-clearly say that live information is not available rather than inventing it.
+The app sends the current local date and time with every user message.
+
+When the user asks about:
+- today
+- tomorrow
+- yesterday
+- current date
+- current time
+- day of the week
+- how many days ago
+- how many days remain
+
+use the AIVORA runtime date/time provided in the message.
+
+NEVER replace the provided current date with an older training date.
+
+If the user asks for information that can change over time and you do
+not have live web information available, clearly say that live/current
+information is not available instead of inventing an answer.
+
+For calculations involving dates, carefully calculate from the
+AIVORA runtime date supplied with the message.
+
+Keep normal answers reasonably concise unless the user asks for detail.
+
+You are the assistant inside AIVORA AI.
 ''',
       ),
     );
@@ -73,15 +98,26 @@ clearly say that live information is not available rather than inventing it.
         '${now.minute.toString().padLeft(2, '0')}:'
         '${now.second.toString().padLeft(2, '0')}';
 
+    final weekday = _weekdayName(now.weekday);
+
     final prompt = '''
+User message:
 $text
 
-[AIVORA APP RUNTIME CONTEXT]
-Current local date: $currentDate
-Current local time: $currentTime
+[AIVORA RUNTIME DATE/TIME]
+Current date: $currentDate
+Current time: $currentTime
+Day: $weekday
 
-Use this runtime date/time as authoritative when the user asks about today,
-tomorrow, yesterday, current date or current time.
+IMPORTANT:
+Treat the AIVORA runtime date/time above as the authoritative current
+date and time for this conversation.
+
+If the user asks "aaj ki date", "today", "kal", "yesterday",
+"kitne din hue", or another relative-date question, calculate using
+this runtime date.
+
+Do not use an older training date as today's date.
 ''';
 
     setState(() {
@@ -155,17 +191,78 @@ tomorrow, yesterday, current date or current time.
         return;
       }
 
+      final errorMessage = _getFriendlyErrorMessage(e);
+
       setState(() {
         _isLoading = false;
 
         _messages[aiMessageIndex] = _ChatMessage(
-          text: 'AIVORA ERROR:\n\n$e',
+          text: errorMessage,
           isUser: false,
         );
       });
     }
 
     _scrollToBottom();
+  }
+
+  String _getFriendlyErrorMessage(Object error) {
+    final errorText = error.toString().toLowerCase();
+
+    if (errorText.contains('quota') ||
+        errorText.contains('rate limit') ||
+        errorText.contains('429') ||
+        errorText.contains('resource exhausted')) {
+      return '''
+AIVORA AI is temporarily busy because the AI request limit has been reached.
+
+Please wait a little and try again.
+
+This is a Gemini API quota limit, not a problem with your message or the AIVORA chat screen.
+''';
+    }
+
+    if (errorText.contains('app check') ||
+        errorText.contains('attestation') ||
+        errorText.contains('403')) {
+      return '''
+AIVORA security verification failed.
+
+Please make sure you are using the latest AIVORA AI build and try again.
+''';
+    }
+
+    if (errorText.contains('network') ||
+        errorText.contains('socket') ||
+        errorText.contains('connection')) {
+      return '''
+AIVORA AI could not connect to the AI service.
+
+Please check your internet connection and try again.
+''';
+    }
+
+    return '''
+AIVORA ERROR:
+
+Something went wrong while generating the response.
+
+Please try again.
+''';
+  }
+
+  String _weekdayName(int weekday) {
+    const days = [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ];
+
+    return days[weekday - 1];
   }
 
   void _scrollToBottom() {
@@ -176,7 +273,7 @@ tomorrow, yesterday, current date or current time.
 
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 180),
+        duration: const Duration(milliseconds: 160),
         curve: Curves.easeOut,
       );
     });
@@ -290,7 +387,7 @@ tomorrow, yesterday, current date or current time.
           isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: const BoxConstraints(
-          maxWidth: 320,
+          maxWidth: 330,
         ),
         margin: const EdgeInsets.only(
           bottom: 12,
