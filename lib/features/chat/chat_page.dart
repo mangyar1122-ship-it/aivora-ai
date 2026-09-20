@@ -1,5 +1,6 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/theme/app_theme.dart';
 
@@ -13,8 +14,8 @@ class ChatPage extends StatefulWidget {
 class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
   final List<_ChatMessage> _messages = [];
+
   late final ChatSession _chat;
 
   bool _isLoading = false;
@@ -23,9 +24,6 @@ class _ChatPageState extends State<ChatPage> {
   void initState() {
     super.initState();
 
-    // Speed optimization:
-    // Gemini 3.x supports LOW thinking level.
-    // This keeps normal chat responses faster.
     final thinkingConfig = ThinkingConfig.withThinkingLevel(
       ThinkingLevel.low,
     );
@@ -43,6 +41,7 @@ class _ChatPageState extends State<ChatPage> {
 You are AIVORA AI, the AI assistant inside the AIVORA AI app.
 
 Your name is AIVORA AI.
+
 Do not introduce yourself as Gemini unless the user specifically asks
 which underlying model is being used.
 
@@ -151,7 +150,10 @@ Do not use an older training date as today's date.
     final aiMessageIndex = _messages.length - 1;
 
     try {
-      final response = await _chat.sendMessageStream(
+      // IMPORTANT:
+      // sendMessageStream() returns a Stream.
+      // Do NOT put "await" before it.
+      final response = _chat.sendMessageStream(
         Content.text(prompt),
       );
 
@@ -217,7 +219,6 @@ Do not use an older training date as today's date.
   String _getFriendlyErrorMessage(Object error) {
     final errorText = error.toString().toLowerCase();
 
-    // Gemini quota / rate-limit errors.
     if (errorText.contains('quota') ||
         errorText.contains('rate limit') ||
         errorText.contains('429') ||
@@ -227,22 +228,22 @@ AIVORA AI is temporarily busy because the AI request limit has been reached.
 
 Please wait a little and try again.
 
-This is a Gemini API quota limit, not a problem with your message or the AIVORA chat screen.
+This is a Gemini API quota limit, not a problem with your message or
+the AIVORA chat screen.
 ''';
     }
 
-    // Temporary Gemini overload.
     if (errorText.contains('overloaded') ||
         errorText.contains('unavailable') ||
         errorText.contains('prefill queue')) {
       return '''
-AIVORA AI is temporarily busy because the AI service is experiencing high demand.
+AIVORA AI is temporarily busy because the AI service is experiencing
+high demand.
 
 Please wait a few seconds and try again.
 ''';
     }
 
-    // Firebase App Check.
     if (errorText.contains('app check') ||
         errorText.contains('attestation') ||
         errorText.contains('403')) {
@@ -253,7 +254,6 @@ Please make sure you are using the latest AIVORA AI build and try again.
 ''';
     }
 
-    // Network errors.
     if (errorText.contains('network') ||
         errorText.contains('socket') ||
         errorText.contains('connection')) {
@@ -285,6 +285,124 @@ Please try again.
     ];
 
     return days[weekday - 1];
+  }
+
+  Future<void> _copyText(String text) async {
+    await Clipboard.setData(
+      ClipboardData(text: text),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Copied'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
+  void _showPlusOptions() {
+    showModalBottomSheet<void>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) {
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(
+              20,
+              8,
+              20,
+              20,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Align(
+                  alignment: Alignment.centerLeft,
+                  child: Text(
+                    'Add to AIVORA AI',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                _optionTile(
+                  icon: Icons.image_rounded,
+                  title: 'Image',
+                  subtitle: 'Add an image',
+                ),
+                _optionTile(
+                  icon: Icons.attach_file_rounded,
+                  title: 'File',
+                  subtitle: 'Add a document or file',
+                ),
+                _optionTile(
+                  icon: Icons.picture_as_pdf_rounded,
+                  title: 'PDF',
+                  subtitle: 'Chat with a PDF',
+                ),
+                _optionTile(
+                  icon: Icons.camera_alt_rounded,
+                  title: 'Camera',
+                  subtitle: 'Take a photo',
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _optionTile({
+    required IconData icon,
+    required String title,
+    required String subtitle,
+  }) {
+    return ListTile(
+      contentPadding: EdgeInsets.zero,
+      leading: Container(
+        width: 44,
+        height: 44,
+        decoration: BoxDecoration(
+          color: AppTheme.primary.withValues(alpha: 0.12),
+          borderRadius: BorderRadius.circular(14),
+        ),
+        child: Icon(
+          icon,
+          color: AppTheme.primary,
+        ),
+      ),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w700,
+        ),
+      ),
+      subtitle: Text(subtitle),
+      onTap: () {
+        Navigator.pop(context);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('$title support is coming soon.'),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showVoiceMessage() {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Voice input is coming soon.'),
+      ),
+    );
   }
 
   void _scrollToBottom() {
@@ -404,12 +522,33 @@ Please try again.
   Widget _buildMessage(_ChatMessage message) {
     final isUser = message.isUser;
 
+    if (message.text.isEmpty && !isUser) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surface,
+            borderRadius: BorderRadius.circular(18),
+          ),
+          child: const SizedBox(
+            width: 22,
+            height: 22,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+            ),
+          ),
+        ),
+      );
+    }
+
     return Align(
       alignment:
           isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: const BoxConstraints(
-          maxWidth: 330,
+          maxWidth: 360,
         ),
         margin: const EdgeInsets.only(
           bottom: 12,
@@ -424,22 +563,53 @@ Please try again.
               : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(18),
         ),
-        child: message.text.isEmpty && !isUser
-            ? const SizedBox(
-                width: 22,
-                height: 22,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                ),
-              )
-            : Text(
-                message.text,
-                style: TextStyle(
-                  color: isUser ? Colors.white : null,
-                  fontSize: 15,
-                  height: 1.4,
-                ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SelectableText(
+              message.text,
+              contextMenuBuilder: (context, editableTextState) {
+                return AdaptiveTextSelectionToolbar.buttonItems(
+                  anchors: editableTextState.contextMenuAnchors,
+                  buttonItems: [
+                    ...editableTextState.contextMenuButtonItems,
+                    ContextMenuButtonItem(
+                      onPressed: () {
+                        editableTextState.hideToolbar();
+                        _copyText(message.text);
+                      },
+                      label: 'Copy all',
+                    ),
+                  ],
+                );
+              },
+              style: TextStyle(
+                color: isUser ? Colors.white : null,
+                fontSize: 15,
+                height: 1.4,
               ),
+            ),
+            if (!isUser) ...[
+              const SizedBox(height: 6),
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    tooltip: 'Copy',
+                    onPressed: () {
+                      _copyText(message.text);
+                    },
+                    icon: const Icon(
+                      Icons.copy_rounded,
+                      size: 18,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -449,16 +619,27 @@ Please try again.
       top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(
-          12,
+          10,
           8,
-          12,
+          10,
           12,
         ),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
           children: [
+            IconButton(
+              tooltip: 'Add',
+              onPressed: _isLoading
+                  ? null
+                  : _showPlusOptions,
+              icon: const Icon(
+                Icons.add_circle_outline_rounded,
+              ),
+            ),
             Expanded(
               child: TextField(
                 controller: _controller,
+                enableInteractiveSelection: true,
                 textInputAction: TextInputAction.send,
                 onSubmitted: (_) {
                   _sendMessage();
@@ -474,12 +655,28 @@ Please try again.
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none,
                   ),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 4),
+            IconButton(
+              tooltip: 'Voice',
+              onPressed: _isLoading
+                  ? null
+                  : _showVoiceMessage,
+              icon: const Icon(
+                Icons.mic_none_rounded,
+              ),
+            ),
             IconButton.filled(
-              onPressed: _isLoading ? null : _sendMessage,
+              tooltip: 'Send',
+              onPressed: _isLoading
+                  ? null
+                  : _sendMessage,
               icon: _isLoading
                   ? const SizedBox(
                       width: 20,
@@ -489,7 +686,7 @@ Please try again.
                       ),
                     )
                   : const Icon(
-                      Icons.send_rounded,
+                      Icons.arrow_upward_rounded,
                     ),
             ),
           ],
