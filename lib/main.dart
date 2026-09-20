@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_ai/firebase_ai.dart';
 import 'firebase_options.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -511,7 +512,7 @@ class _ChatPageState extends State<ChatPage> {
 
   final List<Map<String, String>> _messages = [];
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     final text = _controller.text.trim();
 
     if (text.isEmpty) return;
@@ -521,14 +522,39 @@ class _ChatPageState extends State<ChatPage> {
         'sender': 'user',
         'text': text,
       });
-
-      _messages.add({
-        'sender': 'ai',
-        'text': 'I received your message. AI response will be connected next.',
-      });
     });
 
     _controller.clear();
+
+    try {
+      final model = FirebaseAI.googleAI().generativeModel(
+        model: 'gemini-3.8-flash',
+      );
+
+      final response = await model.generateContent([
+        Content.text(text),
+      ]);
+
+      final aiText = response.text ?? 'I could not generate a response.';
+
+      if (!mounted) return;
+
+      setState(() {
+        _messages.add({
+          'sender': 'ai',
+          'text': aiText,
+        });
+      });
+    } catch (e) {
+      if (!mounted) return;
+
+      setState(() {
+        _messages.add({
+          'sender': 'ai',
+          'text': 'Sorry, something went wrong. Please try again.',
+        });
+      });
+    }
   }
 
   @override
