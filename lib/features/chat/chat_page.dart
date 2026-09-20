@@ -33,7 +33,18 @@ You are AIVORA AI, the AI assistant inside the AIVORA AI app.
 Your name is AIVORA AI.
 Do not introduce yourself as Gemini unless the user specifically asks which underlying model is being used.
 
-Be helpful, clear and concise.
+Be helpful, clear, concise and natural.
+
+IMPORTANT:
+The app will provide the current date and time with every user message.
+When answering questions about today, tomorrow, yesterday, current date or current time,
+use the app-provided runtime date/time as the authoritative current date/time.
+
+Never invent an old date such as 2025 when the app provides a newer date.
+
+For general factual questions, answer from your available knowledge.
+If a question requires live/current information that you do not have,
+clearly say that live information is not available rather than inventing it.
 ''',
       ),
     );
@@ -50,6 +61,29 @@ Be helpful, clear and concise.
 
     _controller.clear();
 
+    final now = DateTime.now();
+
+    final currentDate =
+        '${now.day.toString().padLeft(2, '0')}/'
+        '${now.month.toString().padLeft(2, '0')}/'
+        '${now.year}';
+
+    final currentTime =
+        '${now.hour.toString().padLeft(2, '0')}:'
+        '${now.minute.toString().padLeft(2, '0')}:'
+        '${now.second.toString().padLeft(2, '0')}';
+
+    final prompt = '''
+$text
+
+[AIVORA APP RUNTIME CONTEXT]
+Current local date: $currentDate
+Current local time: $currentTime
+
+Use this runtime date/time as authoritative when the user asks about today,
+tomorrow, yesterday, current date or current time.
+''';
+
     setState(() {
       _messages.add(
         _ChatMessage(
@@ -58,33 +92,63 @@ Be helpful, clear and concise.
         ),
       );
 
+      _messages.add(
+        const _ChatMessage(
+          text: '',
+          isUser: false,
+        ),
+      );
+
       _isLoading = true;
     });
 
     _scrollToBottom();
 
+    final aiMessageIndex = _messages.length - 1;
+
     try {
-      final response = await _chat.sendMessage(
-        Content.text(text),
+      final response = await _chat.sendMessageStream(
+        Content.text(prompt),
       );
 
-      final reply = response.text?.trim();
+      String fullReply = '';
+
+      await for (final chunk in response) {
+        final chunkText = chunk.text ?? '';
+
+        if (chunkText.isEmpty) {
+          continue;
+        }
+
+        fullReply += chunkText;
+
+        if (!mounted) {
+          return;
+        }
+
+        setState(() {
+          _messages[aiMessageIndex] = _ChatMessage(
+            text: fullReply,
+            isUser: false,
+          );
+        });
+
+        _scrollToBottom();
+      }
 
       if (!mounted) {
         return;
       }
 
       setState(() {
-        _messages.add(
-          _ChatMessage(
-            text: reply?.isNotEmpty == true
-                ? reply!
-                : 'I could not generate a response.',
-            isUser: false,
-          ),
-        );
-
         _isLoading = false;
+
+        if (fullReply.trim().isEmpty) {
+          _messages[aiMessageIndex] = const _ChatMessage(
+            text: 'I could not generate a response.',
+            isUser: false,
+          );
+        }
       });
     } catch (e) {
       if (!mounted) {
@@ -92,14 +156,12 @@ Be helpful, clear and concise.
       }
 
       setState(() {
-        _messages.add(
-          _ChatMessage(
-            text: 'AIVORA ERROR:\n\n$e',
-            isUser: false,
-          ),
-        );
-
         _isLoading = false;
+
+        _messages[aiMessageIndex] = _ChatMessage(
+          text: 'AIVORA ERROR:\n\n$e',
+          isUser: false,
+        );
       });
     }
 
@@ -114,7 +176,7 @@ Be helpful, clear and concise.
 
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 250),
+        duration: const Duration(milliseconds: 180),
         curve: Curves.easeOut,
       );
     });
@@ -224,9 +286,8 @@ Be helpful, clear and concise.
     final isUser = message.isUser;
 
     return Align(
-      alignment: isUser
-          ? Alignment.centerRight
-          : Alignment.centerLeft,
+      alignment:
+          isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         constraints: const BoxConstraints(
           maxWidth: 320,
@@ -241,19 +302,25 @@ Be helpful, clear and concise.
         decoration: BoxDecoration(
           color: isUser
               ? AppTheme.primary
-              : Theme.of(context)
-                  .colorScheme
-                  .surface,
+              : Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(18),
         ),
-        child: Text(
-          message.text,
-          style: TextStyle(
-            color: isUser ? Colors.white : null,
-            fontSize: 15,
-            height: 1.4,
-          ),
-        ),
+        child: message.text.isEmpty && !isUser
+            ? const SizedBox(
+                width: 22,
+                height: 22,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                ),
+              )
+            : Text(
+                message.text,
+                style: TextStyle(
+                  color: isUser ? Colors.white : null,
+                  fontSize: 15,
+                  height: 1.4,
+                ),
+              ),
       ),
     );
   }
@@ -282,9 +349,8 @@ Be helpful, clear and concise.
                 decoration: InputDecoration(
                   hintText: 'Message AIVORA AI...',
                   filled: true,
-                  fillColor: Theme.of(context)
-                      .colorScheme
-                      .surface,
+                  fillColor:
+                      Theme.of(context).colorScheme.surface,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
                     borderSide: BorderSide.none,
