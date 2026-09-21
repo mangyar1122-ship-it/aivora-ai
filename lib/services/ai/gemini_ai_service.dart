@@ -45,15 +45,52 @@ class GeminiAiService implements AiService {
   }
 
   @override
-  Stream<String> generateTextStream(String prompt) async* {
+  Stream<AiStreamChunk> generateTextStream(String prompt) async* {
     try {
       final response = _model.generateContentStream([Content.text(prompt)]);
       await for (final chunk in response) {
         final text = chunk.text ?? "";
-        if (text.isNotEmpty) yield text;
+        final sources = <AiSource>[];
+        String? searchSuggestionsHtml;
+
+        final groundingMetadata =
+            chunk.candidates.first.groundingMetadata;
+
+        if (groundingMetadata != null) {
+          searchSuggestionsHtml =
+              groundingMetadata.searchEntryPoint?.renderedContent;
+
+          for (final groundingChunk
+              in groundingMetadata.groundingChunks) {
+            final web = groundingChunk.web;
+
+            if (web != null &&
+                web.uri != null &&
+                web.uri!.isNotEmpty) {
+              final source = AiSource(
+                title: web.title ?? web.uri!,
+                uri: web.uri!,
+              );
+
+              if (!sources.any(
+                (item) => item.uri == source.uri,
+              )) {
+                sources.add(source);
+              }
+            }
+          }
+        }
+
+        if (text.isNotEmpty || sources.isNotEmpty) {
+          yield AiStreamChunk(
+            text: text,
+            sources: List.unmodifiable(sources),
+            searchSuggestionsHtml: searchSuggestionsHtml,
+          );
+        }
       }
     } catch (e) {
-      yield "[AI_ERROR] $e";
+      yield AiStreamChunk(text: "[AI_ERROR] $e");
     }
   }
 

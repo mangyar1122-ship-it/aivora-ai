@@ -31,8 +31,30 @@ class AiResponse {
 abstract class AiService {
   /// Sends a text prompt to the AI.
   Future<AiResponse> generateText(String prompt);
-  Stream<String> generateTextStream(String prompt);
+  Stream<AiStreamChunk> generateTextStream(String prompt);
 
   /// Checks whether the AI service is ready.
   Future<bool> isAvailable();
+}
+
+class AiSource {
+  final String title;
+  final String uri;
+
+  const AiSource({
+    required this.title,
+    required this.uri,
+  });
+}
+
+class AiStreamChunk {
+  final String text;
+  final List<AiSource> sources;
+  final String? searchSuggestionsHtml;
+
+  const AiStreamChunk({
+    required this.text,
+    this.sources = const [],
+    this.searchSuggestionsHtml,
+  });
 }

@@ -55,3 +55,5 @@ lib/features/chat/chat_page_before_ai_brain_upgrade.dart
 
 lib/features/chat/chat_page_before_service_connect.dart
 local-server/
+
+lib/services/ai/gemini_ai_service_before_grounding.dart

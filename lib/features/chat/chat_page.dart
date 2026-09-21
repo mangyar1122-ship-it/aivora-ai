@@ -1,4 +1,3 @@
-import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -19,76 +18,9 @@ class _ChatPageState extends State<ChatPage> {
   final ScrollController _scrollController = ScrollController();
   final List<_ChatMessage> _messages = [];
 
-  late final ChatSession _chat;
 
   bool _isLoading = false;
 
-  @override
-  void initState() {
-    super.initState();
-
-    final thinkingConfig = ThinkingConfig.withThinkingLevel(
-      ThinkingLevel.minimal,
-    );
-
-    final generationConfig = GenerationConfig(
-      maxOutputTokens: 8000,
-      thinkingConfig: thinkingConfig,
-    );
-
-    final model = FirebaseAI.googleAI().generativeModel(
-      model: 'gemini-3.8-flash',
-      generationConfig: generationConfig,
-      tools: [
-        Tool.urlContext(),
-        Tool.googleSearch(),
-      ],
-      systemInstruction: Content.system(
-        '''
-You are AIVORA AI, the AI assistant inside the AIVORA AI app.
-
-Your name is AIVORA AI.
-
-Do not introduce yourself as Gemini unless the user specifically asks
-which underlying model is being used.
-
-Be helpful, accurate, natural and context-aware.
-
-IMPORTANT CURRENT-DATE RULE:
-
-The app sends the current local date and time with every user message.
-
-When the user asks about:
-- today
-- tomorrow
-- yesterday
-- current date
-- current time
-- day of the week
-- how many days ago
-- how many days remain
-
-use the AIVORA runtime date/time provided in the message.
-
-NEVER replace the provided current date with an older training date.
-
-If the user asks for information that can change over time and you do
-not have live web information available, clearly say that live/current
-information is not available instead of inventing an answer.
-
-For calculations involving dates, carefully calculate from the
-AIVORA runtime date supplied with the message.
-
-Give answers according to the complexity of the user request. Simple questions should get simple answers. Normal questions should get clear explanations with useful detail. Complex questions should be analyzed carefully and answered with structured, detailed explanations, step-by-step reasoning summaries, examples, calculations, comparisons, assumptions, limitations, and practical next steps when relevant. Do not make every answer unnecessarily long.
-
-Do not start every response with a generic greeting. Greet the user when they greet you or explicitly ask for a greeting. For normal questions, answer directly without unnecessary introductions. If the user asks who you are, identify yourself as AIVORA AI, their AI assistant.
-You are the assistant inside AIVORA AI.
-''',
-      ),
-    );
-
-    _chat = model.startChat();
-  }
 
   Future<void> _sendMessage() async {
     final text = _controller.text.trim();
@@ -161,66 +93,51 @@ Do not use an older training date as today's date.
       // IMPORTANT:
       // sendMessageStream() returns a Stream.
       // Do NOT put "await" before it.
-      final response = _chat.sendMessageStream(
-        Content.text(prompt),
-      );
+        final response = _aiService.generateTextStream(prompt);
 
-      String fullReply = '';
-      final webSources = <_WebSource>[];
-      String? searchSuggestionsHtml;
+        String fullReply = '';
+        final webSources = <_WebSource>[];
+        String? searchSuggestionsHtml;
 
-      await for (final chunk in response) {
-        final chunkText = chunk.text ?? '';
+        await for (final chunk in response) {
+          final chunkText = chunk.text;
 
-        final groundingMetadata =
-            chunk.candidates.first.groundingMetadata;
+          for (final source in chunk.sources) {
+            final webSource = _WebSource(
+              title: source.title,
+              uri: source.uri,
+            );
 
-        if (groundingMetadata != null) {
-          searchSuggestionsHtml ??=
-              groundingMetadata.searchEntryPoint?.renderedContent;
-
-          for (final groundingChunk
-              in groundingMetadata.groundingChunks) {
-            final web = groundingChunk.web;
-
-            if (web != null &&
-                web.uri != null &&
-                web.uri!.isNotEmpty) {
-              final source = _WebSource(
-                title: web.title ?? web.uri!,
-                uri: web.uri!,
-              );
-
-              if (!webSources.any(
-                (item) => item.uri == source.uri,
-              )) {
-                webSources.add(source);
-              }
+            if (!webSources.any(
+              (item) => item.uri == webSource.uri,
+            )) {
+              webSources.add(webSource);
             }
           }
+
+          searchSuggestionsHtml ??= chunk.searchSuggestionsHtml;
+
+          if (chunkText.isEmpty) {
+            continue;
+          }
+
+          fullReply += chunkText;
+
+          if (!mounted) {
+            return;
+          }
+
+          setState(() {
+            _messages[aiMessageIndex] = _ChatMessage(
+              text: fullReply,
+              isUser: false,
+              sources: List.unmodifiable(webSources),
+              searchSuggestionsHtml: searchSuggestionsHtml,
+            );
+          });
+
+          _scrollToBottom();
         }
-
-        if (chunkText.isEmpty) {
-          continue;
-        }
-
-        fullReply += chunkText;
-
-        if (!mounted) {
-          return;
-        }
-
-        setState(() {
-          _messages[aiMessageIndex] = _ChatMessage(
-            text: fullReply,
-            isUser: false,
-            sources: List.unmodifiable(webSources),
-            searchSuggestionsHtml: searchSuggestionsHtml,
-          );
-        });
-
-        _scrollToBottom();
-      }
 
       if (!mounted) {
         return;
@@ -1195,349 +1112,6 @@ Please try again.
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Future<void> _openWebSource(String uri) async {
-    final url = Uri.tryParse(uri);
-
-    if (url == null) {
-      return;
-    }
-
-    await launchUrl(
-      url,
-      mode: LaunchMode.externalApplication,
-    );
-  }
-
-  Widget _buildMessage(_ChatMessage message) {
-    final isUser = message.isUser;
-
-    if (message.text.isEmpty && isUser == false) {
-      return Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 14),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 14,
-          ),
-          decoration: BoxDecoration(
-            color: AppTheme.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: AppTheme.cyan.withValues(alpha: 0.18),
-            ),
-          ),
-          child: const Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(
-                  strokeWidth: 2,
-                  color: AppTheme.cyan,
-                ),
-              ),
-              SizedBox(width: 10),
-              Text(
-                "AIVORA is thinking...",
-                style: TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ],
-          ),
-        ),
-      );
-    }
-
-    return Align(
-      alignment: isUser
-          ? Alignment.centerRight
-          : Alignment.centerLeft,
-      child: Container(
-        constraints: const BoxConstraints(
-          maxWidth: 360,
-        ),
-        margin: const EdgeInsets.only(bottom: 14),
-        padding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 13,
-        ),
-        decoration: BoxDecoration(
-          gradient: isUser
-              ? const LinearGradient(
-                  colors: [
-                    AppTheme.primary,
-                    AppTheme.secondary,
-                  ],
-                )
-              : null,
-          color: isUser ? null : AppTheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: isUser
-                ? AppTheme.primary.withValues(alpha: 0.35)
-                : AppTheme.cyan.withValues(alpha: 0.16),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isUser
-                  ? AppTheme.primary.withValues(alpha: 0.16)
-                  : AppTheme.cyan.withValues(alpha: 0.06),
-              blurRadius: 18,
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            if (isUser == false)
-              Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: const BoxDecoration(
-                        shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            AppTheme.cyan,
-                            AppTheme.secondary,
-                          ],
-                        ),
-                      ),
-                      child: const Icon(
-                        Icons.auto_awesome_rounded,
-                        color: Colors.white,
-                        size: 14,
-                      ),
-                    ),
-                    const SizedBox(width: 7),
-                    const Text(
-                      "AIVORA",
-                      style: TextStyle(
-                        color: AppTheme.cyan,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            SelectableText(
-              message.text,
-              contextMenuBuilder: (context, editableTextState) {
-                return AdaptiveTextSelectionToolbar.buttonItems(
-                  anchors: editableTextState.contextMenuAnchors,
-                  buttonItems: [
-                    ...editableTextState.contextMenuButtonItems,
-                    ContextMenuButtonItem(
-                      onPressed: () {
-                        editableTextState.hideToolbar();
-                        _copyText(message.text);
-                      },
-                      label: "Copy all",
-                    ),
-                  ],
-                );
-              },
-              style: TextStyle(
-                color: isUser
-                    ? Colors.white
-                    : AppTheme.textPrimary,
-                fontSize: 15,
-                height: 1.5,
-              ),
-            ),
-            if (isUser == false && message.sources.isNotEmpty)
-              ...[
-                const SizedBox(height: 14),
-                Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(11),
-                  decoration: BoxDecoration(
-                    color: AppTheme.background.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(
-                      color: AppTheme.secondary.withValues(alpha: 0.24),
-                    ),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Row(
-                        children: [
-                          Icon(
-                            Icons.language_rounded,
-                            color: AppTheme.cyan,
-                            size: 17,
-                          ),
-                          SizedBox(width: 7),
-                          Text(
-                            "Sources",
-                            style: TextStyle(
-                              color: AppTheme.textPrimary,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 6),
-                      ...message.sources.map(
-                        (source) => InkWell(
-                          onTap: () => _openWebSource(source.uri),
-                          borderRadius: BorderRadius.circular(10),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 7,
-                            ),
-                            child: Row(
-                              children: [
-                                const Icon(
-                                  Icons.link_rounded,
-                                  color: AppTheme.textSecondary,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  child: Text(
-                                    source.title,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: const TextStyle(
-                                      color: AppTheme.textSecondary,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 6),
-                                const Icon(
-                                  Icons.open_in_new_rounded,
-                                  color: AppTheme.cyan,
-                                  size: 15,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            if (isUser == false)
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    tooltip: "Copy",
-                    onPressed: () {
-                      _copyText(message.text);
-                    },
-                    icon: const Icon(
-                      Icons.copy_rounded,
-                      color: AppTheme.textSecondary,
-                      size: 17,
-                    ),
-                  ),
-                ],
-              ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputArea() {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(
-          10,
-          8,
-          10,
-          12,
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            IconButton(
-              tooltip: 'Add',
-              onPressed: _isLoading
-                  ? null
-                  : _showPlusOptions,
-              icon: const Icon(
-                Icons.add_circle_outline_rounded,
-              ),
-            ),
-            Expanded(
-              child: TextField(
-                controller: _controller,
-                enableInteractiveSelection: true,
-                textInputAction: TextInputAction.send,
-                onSubmitted: (_) {
-                  _sendMessage();
-                },
-                minLines: 1,
-                maxLines: 5,
-                decoration: InputDecoration(
-                  hintText: 'Message AIVORA AI...',
-                  filled: true,
-                  fillColor:
-                      Theme.of(context).colorScheme.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide.none,
-                  ),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 12,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 4),
-            IconButton(
-              tooltip: 'Voice',
-              onPressed: _isLoading
-                  ? null
-                  : _showVoiceMessage,
-              icon: const Icon(
-                Icons.mic_none_rounded,
-              ),
-            ),
-            IconButton.filled(
-              tooltip: 'Send',
-              onPressed: _isLoading
-                  ? null
-                  : _sendMessage,
-              icon: _isLoading
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Icon(
-                      Icons.arrow_upward_rounded,
-                    ),
             ),
           ],
         ),
