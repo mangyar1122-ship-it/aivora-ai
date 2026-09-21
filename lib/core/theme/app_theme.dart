@@ -3,50 +3,58 @@ import 'package:flutter/material.dart';
 class AppTheme {
   AppTheme._();
 
-  // AIVORA AI Colors
-  static const Color primary = Color(0xFF6C63FF);
-  static const Color secondary = Color(0xFF00C2FF);
-  static const Color background = Color(0xFFF8F9FC);
-  static const Color darkBackground = Color(0xFF0F1117);
-  static const Color textPrimary = Color(0xFF171923);
-  static const Color textSecondary = Color(0xFF6B7280);
+  // AIVORA FUTURISTIC COLORS
+  static const Color primary = Color(0xFF168CFF);
+  static const Color secondary = Color(0xFF7B2CFF);
+  static const Color cyan = Color(0xFF00D9FF);
 
-  static ThemeData lightTheme = ThemeData(
+  static const Color background = Color(0xFF020817);
+  static const Color surface = Color(0xFF07152B);
+  static const Color surface2 = Color(0xFF0A1D3A);
+
+  static const Color textPrimary = Color(0xFFF5F8FF);
+  static const Color textSecondary = Color(0xFF9AA9C2);
+
+  static ThemeData darkTheme = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.light,
+    brightness: Brightness.dark,
     scaffoldBackgroundColor: background,
-    colorScheme: ColorScheme.fromSeed(
-      seedColor: primary,
-      brightness: Brightness.light,
+
+    colorScheme: const ColorScheme.dark(
+      primary: primary,
+      secondary: secondary,
+      surface: surface,
+      onSurface: textPrimary,
     ),
+
     appBarTheme: const AppBarTheme(
-      centerTitle: false,
+      backgroundColor: Colors.transparent,
       elevation: 0,
-      backgroundColor: background,
       foregroundColor: textPrimary,
     ),
+
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: surface,
+      hintStyle: const TextStyle(
+        color: textSecondary,
+      ),
       border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.all(
+          Radius.circular(18),
+        ),
         borderSide: BorderSide.none,
       ),
     ),
   );
 
-  static ThemeData darkTheme = ThemeData(
+  static ThemeData lightTheme = ThemeData(
     useMaterial3: true,
-    brightness: Brightness.dark,
-    scaffoldBackgroundColor: darkBackground,
+    brightness: Brightness.light,
+    scaffoldBackgroundColor: Colors.white,
     colorScheme: ColorScheme.fromSeed(
       seedColor: primary,
-      brightness: Brightness.dark,
-    ),
-    appBarTheme: const AppBarTheme(
-      centerTitle: false,
-      elevation: 0,
-      backgroundColor: darkBackground,
+      brightness: Brightness.light,
     ),
   );
 }

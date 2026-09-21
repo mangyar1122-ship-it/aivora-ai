@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 
 import '../chat/chat_page.dart';
-import '../../core/constants/app_constants.dart';
 import '../../core/theme/app_theme.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  final String? userName;
+
+  const HomePage({
+    super.key,
+    this.userName,
+  });
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -77,92 +81,130 @@ class _HomePageState extends State<HomePage> {
     ),
   ];
 
+  String get _displayName {
+    final name = widget.userName?.trim();
+
+    if (name == null || name.isEmpty) {
+      return 'there';
+    }
+
+    return name;
+  }
+
+  String get _greeting {
+    final hour = DateTime.now().hour;
+
+    if (hour < 12) {
+      return 'Good Morning';
+    }
+
+    if (hour < 17) {
+      return 'Good Afternoon';
+    }
+
+    if (hour < 21) {
+      return 'Good Evening';
+    }
+
+    return 'Good Night';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         child: IndexedStack(
           index: _selectedIndex,
           children: [
             _buildHome(),
             _buildTools(),
-            _buildLibrary(),
+            _buildHistory(),
             _buildProfile(),
           ],
         ),
       ),
-      bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: (index) {
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
-        destinations: const [
-          NavigationDestination(
-            icon: Icon(Icons.home_outlined),
-            selectedIcon: Icon(Icons.home_rounded),
-            label: 'Home',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.grid_view_outlined),
-            selectedIcon: Icon(Icons.grid_view_rounded),
-            label: 'Tools',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.folder_outlined),
-            selectedIcon: Icon(Icons.folder_rounded),
-            label: 'Library',
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.person_outline_rounded),
-            selectedIcon: Icon(Icons.person_rounded),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      bottomNavigationBar: _buildBottomNavigation(),
     );
   }
 
   Widget _buildHome() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(18, 18, 18, 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(),
+          _buildTopHeader(),
           const SizedBox(height: 28),
           Text(
-            'What will you create?',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            '$_greeting, $_displayName 👋',
+            style: const TextStyle(
+              color: AppTheme.textPrimary,
+              fontSize: 27,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
+            ),
           ),
-          const SizedBox(height: 8),
-          Text(
-            'One AI workspace for your ideas, content and creativity.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.textSecondary,
-                ),
+          const SizedBox(height: 7),
+          const Text(
+            'What would you like to create today?',
+            style: TextStyle(
+              color: AppTheme.textSecondary,
+              fontSize: 14,
+            ),
           ),
           const SizedBox(height: 22),
-          _buildAssistantCard(),
-          const SizedBox(height: 28),
-          _buildSectionTitle(
-            title: 'Popular Tools',
-            action: 'View all',
-            onAction: () {
-              setState(() {
-                _selectedIndex = 1;
-              });
+          _buildMainAiCard(),
+          const SizedBox(height: 25),
+          _buildSectionHeader(
+            'Quick Actions',
+            'View all',
+            () {
+              setState(() => _selectedIndex = 1);
             },
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: 13),
+          Row(
+            children: [
+              Expanded(
+                child: _buildQuickAction(
+                  icon: Icons.chat_rounded,
+                  title: 'New Chat',
+                  subtitle: 'Ask AIVORA',
+                  color: AppTheme.cyan,
+                  onTap: _openChat,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: _buildQuickAction(
+                  icon: Icons.auto_awesome_rounded,
+                  title: 'Create',
+                  subtitle: 'Make something',
+                  color: AppTheme.secondary,
+                  onTap: () {
+                    setState(() => _selectedIndex = 1);
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 25),
+          _buildSectionHeader(
+            'AI Tools',
+            'Explore',
+            () {
+              setState(() => _selectedIndex = 1);
+            },
+          ),
+          const SizedBox(height: 13),
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: 6,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
@@ -172,32 +214,22 @@ class _HomePageState extends State<HomePage> {
               return _buildToolCard(_tools[index]);
             },
           ),
-          const SizedBox(height: 30),
-          _buildSectionTitle(
-            title: 'Why AIVORA?',
+          const SizedBox(height: 26),
+          _buildSectionHeader(
+            'Recent',
+            'History',
+            () {
+              setState(() => _selectedIndex = 2);
+            },
           ),
-          const SizedBox(height: 14),
-          _buildFeature(
-            icon: Icons.bolt_rounded,
-            title: 'Fast AI generation',
-            subtitle: 'Create content quickly with AI.',
-          ),
-          _buildFeature(
-            icon: Icons.auto_awesome_rounded,
-            title: 'All-in-one workspace',
-            subtitle: 'Text, image, video, voice and PDF tools.',
-          ),
-          _buildFeature(
-            icon: Icons.folder_rounded,
-            title: 'Organized library',
-            subtitle: 'Keep your generated work in one place.',
-          ),
+          const SizedBox(height: 13),
+          _buildRecentCard(),
         ],
       ),
     );
   }
 
-  Widget _buildHeader() {
+  Widget _buildTopHeader() {
     return Row(
       children: [
         Container(
@@ -206,11 +238,18 @@ class _HomePageState extends State<HomePage> {
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               colors: [
+                AppTheme.cyan,
                 AppTheme.primary,
                 AppTheme.secondary,
               ],
             ),
             borderRadius: BorderRadius.circular(15),
+            boxShadow: [
+              BoxShadow(
+                color: AppTheme.primary.withValues(alpha: 0.28),
+                blurRadius: 18,
+              ),
+            ],
           ),
           child: const Icon(
             Icons.auto_awesome_rounded,
@@ -219,35 +258,52 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         const SizedBox(width: 12),
-        Expanded(
+        const Expanded(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                AppConstants.appName,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                      fontWeight: FontWeight.w800,
-                    ),
+                'AIVORA',
+                style: TextStyle(
+                  color: AppTheme.textPrimary,
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.2,
+                ),
               ),
               Text(
-                AppConstants.tagline,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppTheme.textSecondary,
-                    ),
+                'AI CREATIVE WORKSPACE',
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 8,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 1.3,
+                ),
               ),
             ],
           ),
         ),
-        IconButton(
-          onPressed: () {},
-          tooltip: 'Notifications',
-          icon: const Icon(Icons.notifications_none_rounded),
+        Container(
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: AppTheme.primary.withValues(alpha: 0.22),
+            ),
+          ),
+          child: IconButton(
+            onPressed: () {},
+            icon: const Icon(
+              Icons.notifications_none_rounded,
+              color: AppTheme.textPrimary,
+            ),
+          ),
         ),
       ],
     );
   }
 
-  Widget _buildAssistantCard() {
+  Widget _buildMainAiCard() {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -256,62 +312,126 @@ class _HomePageState extends State<HomePage> {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [
-            Color(0xFF24164A),
-            Color(0xFF11152A),
+            Color(0xFF102C55),
+            Color(0xFF08172F),
+            Color(0xFF170D35),
           ],
         ),
-        borderRadius: BorderRadius.circular(24),
+        borderRadius: BorderRadius.circular(27),
         border: Border.all(
-          color: AppTheme.primary.withValues(alpha: 0.25),
+          color: AppTheme.cyan.withValues(alpha: 0.22),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: AppTheme.primary.withValues(alpha: 0.16),
+            blurRadius: 30,
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Container(
-            width: 48,
-            height: 48,
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.18),
-              borderRadius: BorderRadius.circular(15),
-            ),
-            child: const Icon(
-              Icons.auto_awesome_rounded,
-              color: Color(0xFFBFA8FF),
-              size: 27,
-            ),
+          Row(
+            children: [
+              Container(
+                width: 52,
+                height: 52,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  gradient: const LinearGradient(
+                    colors: [
+                      AppTheme.cyan,
+                      AppTheme.primary,
+                      AppTheme.secondary,
+                    ],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.cyan.withValues(alpha: 0.28),
+                      blurRadius: 20,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.auto_awesome_rounded,
+                  color: Colors.white,
+                  size: 27,
+                ),
+              ),
+              const SizedBox(width: 13),
+              const Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'AIVORA AI',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 20,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  SizedBox(height: 2),
+                  Text(
+                    'Your intelligent workspace',
+                    style: TextStyle(
+                      color: Colors.white60,
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           const Text(
-            'AI Assistant',
+            'Think. Create.\nGo beyond limits.',
             style: TextStyle(
               color: Colors.white,
-              fontSize: 22,
+              fontSize: 25,
+              height: 1.12,
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 7),
+          const SizedBox(height: 9),
           const Text(
-            'Ask anything, write anything, create anything.',
+            'Chat, write, create images, explore ideas and more with AIVORA.',
             style: TextStyle(
               color: Colors.white70,
-              fontSize: 14,
+              fontSize: 12.5,
+              height: 1.4,
             ),
           ),
-          const SizedBox(height: 18),
+          const SizedBox(height: 19),
           SizedBox(
             width: double.infinity,
-            child: FilledButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => const ChatPage(),
+            height: 49,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    AppTheme.cyan,
+                    AppTheme.primary,
+                    AppTheme.secondary,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: ElevatedButton.icon(
+                onPressed: _openChat,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.transparent,
+                  shadowColor: Colors.transparent,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                );
-              },
-              icon: const Icon(Icons.chat_rounded),
-              label: const Text('Start AI Chat'),
+                ),
+                icon: const Icon(Icons.chat_rounded),
+                label: const Text(
+                  'Start AI Chat',
+                  style: TextStyle(fontWeight: FontWeight.w800),
+                ),
+              ),
             ),
           ),
         ],
@@ -319,146 +439,171 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildSectionTitle({
+  Widget _buildQuickAction({
+    required IconData icon,
     required String title,
-    String? action,
-    VoidCallback? onAction,
+    required String subtitle,
+    required Color color,
+    required VoidCallback onTap,
   }) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(
-          title,
-          style: Theme.of(context).textTheme.titleLarge?.copyWith(
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: color.withValues(alpha: 0.20),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 43,
+              height: 43,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                icon,
+                color: color,
+                size: 22,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              title,
+              style: const TextStyle(
+                color: AppTheme.textPrimary,
+                fontSize: 14,
                 fontWeight: FontWeight.w800,
               ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              subtitle,
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 10.5,
+              ),
+            ),
+          ],
         ),
-        if (action != null)
-          TextButton(
-            onPressed: onAction,
-            child: Text(action),
-          ),
-      ],
+      ),
     );
   }
 
   Widget _buildToolCard(_AivoraTool tool) {
-    return Material(
-      color: Theme.of(context).colorScheme.surface,
-      borderRadius: BorderRadius.circular(20),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(20),
-        onTap: () {
-          // AI Chat is now connected.
-          if (tool.name == 'AI Chat') {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const ChatPage(),
-              ),
-            );
-            return;
-          }
+    return InkWell(
+      onTap: () {
+        if (tool.name == 'AI Chat') {
+          _openChat();
+          return;
+        }
 
-          // Other tools will be connected later.
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                '${tool.name} will be connected next.',
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '${tool.name} will be connected next.',
+            ),
+          ),
+        );
+      },
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.all(15),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: AppTheme.primary.withValues(alpha: 0.14),
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: AppTheme.primary.withValues(alpha: 0.12),
+                borderRadius: BorderRadius.circular(14),
+              ),
+              child: Icon(
+                tool.icon,
+                color: AppTheme.cyan,
+                size: 23,
               ),
             ),
-          );
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(15),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 46,
-                height: 46,
-                decoration: BoxDecoration(
-                  color: AppTheme.primary.withValues(alpha: 0.12),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Icon(
-                  tool.icon,
-                  color: AppTheme.primary,
-                  size: 24,
-                ),
+            const SizedBox(height: 11),
+            Text(
+              tool.name,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppTheme.textPrimary,
+                fontSize: 13,
+                fontWeight: FontWeight.w700,
               ),
-              const SizedBox(height: 12),
-              Text(
-                tool.name,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
+            ),
+            const SizedBox(height: 3),
+            Text(
+              tool.subtitle,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 10,
               ),
-              const SizedBox(height: 3),
-              Text(
-                tool.subtitle,
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(
-                  color: AppTheme.textSecondary,
-                  fontSize: 11,
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildFeature({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-  }) {
+  Widget _buildRecentCard() {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 10),
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surface,
-        borderRadius: BorderRadius.circular(17),
+        color: AppTheme.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: AppTheme.primary.withValues(alpha: 0.14),
+        ),
       ),
-      child: Row(
+      child: const Row(
         children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              color: AppTheme.primary.withValues(alpha: 0.12),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Icon(
-              icon,
-              color: AppTheme.primary,
-            ),
+          Icon(
+            Icons.history_rounded,
+            color: AppTheme.cyan,
+            size: 28,
           ),
-          const SizedBox(width: 13),
+          SizedBox(width: 12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  title,
-                  style: const TextStyle(
+                  'No recent activity',
+                  style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 13,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-                const SizedBox(height: 3),
+                SizedBox(height: 4),
                 Text(
-                  subtitle,
+                  'Your recent AI work will appear here.',
                   style: TextStyle(
                     color: AppTheme.textSecondary,
-                    fontSize: 12,
+                    fontSize: 10.5,
                   ),
                 ),
               ],
@@ -469,35 +614,78 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildSectionHeader(
+    String title,
+    String action,
+    VoidCallback onAction,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            title,
+            style: const TextStyle(
+              color: AppTheme.textPrimary,
+              fontSize: 18,
+              fontWeight: FontWeight.w800,
+            ),
+          ),
+        ),
+        TextButton(
+          onPressed: onAction,
+          child: Text(
+            action,
+            style: const TextStyle(
+              color: AppTheme.cyan,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildTools() {
     return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 18, 20, 30),
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.fromLTRB(18, 22, 18, 30),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
+          const Text(
             'AI Tools',
-            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                  fontWeight: FontWeight.w800,
-                ),
+            style: TextStyle(
+              color: AppTheme.textPrimary,
+              fontSize: 28,
+              fontWeight: FontWeight.w800,
+            ),
           ),
           const SizedBox(height: 7),
-          Text(
-            'Choose a tool and start creating.',
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppTheme.textSecondary,
-                ),
+          const Text(
+            'Everything you need in one AI workspace.',
+            style: TextStyle(
+              color: AppTheme.textSecondary,
+              fontSize: 13,
+            ),
           ),
           const SizedBox(height: 20),
-          TextField(
-            decoration: InputDecoration(
-              hintText: 'Search tools...',
-              prefixIcon: const Icon(Icons.search_rounded),
-              filled: true,
-              fillColor: Theme.of(context).colorScheme.surface,
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(17),
-                borderSide: BorderSide.none,
+          Container(
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(17),
+              border: Border.all(
+                color: AppTheme.primary.withValues(alpha: 0.15),
+              ),
+            ),
+            child: const TextField(
+              style: TextStyle(color: AppTheme.textPrimary),
+              decoration: InputDecoration(
+                hintText: 'Search AI tools...',
+                prefixIcon: Icon(
+                  Icons.search_rounded,
+                  color: AppTheme.textSecondary,
+                ),
+                border: InputBorder.none,
               ),
             ),
           ),
@@ -506,7 +694,8 @@ class _HomePageState extends State<HomePage> {
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: _tools.length,
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            gridDelegate:
+                const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
@@ -521,32 +710,34 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildLibrary() {
+  Widget _buildHistory() {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(30),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              Icons.folder_copy_outlined,
-              size: 72,
-              color: AppTheme.primary,
+            const Icon(
+              Icons.history_rounded,
+              color: AppTheme.cyan,
+              size: 70,
             ),
             const SizedBox(height: 18),
             const Text(
-              'Your Library',
+              'Your History',
               style: TextStyle(
-                fontSize: 26,
+                color: AppTheme.textPrimary,
+                fontSize: 25,
                 fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 8),
-            Text(
-              'Your generated content will appear here.',
+            const Text(
+              'Your conversations and generated content will appear here.',
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.textSecondary,
+                fontSize: 13,
               ),
             ),
           ],
@@ -562,9 +753,19 @@ class _HomePageState extends State<HomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            CircleAvatar(
-              radius: 43,
-              backgroundColor: AppTheme.primary,
+            Container(
+              width: 88,
+              height: 88,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [
+                    AppTheme.cyan,
+                    AppTheme.primary,
+                    AppTheme.secondary,
+                  ],
+                ),
+              ),
               child: const Icon(
                 Icons.person_rounded,
                 size: 43,
@@ -572,15 +773,18 @@ class _HomePageState extends State<HomePage> {
               ),
             ),
             const SizedBox(height: 18),
-            const Text(
-              'AIVORA AI',
-              style: TextStyle(
+            Text(
+              _displayName == 'there'
+                  ? 'AIVORA User'
+                  : _displayName,
+              style: const TextStyle(
+                color: AppTheme.textPrimary,
                 fontSize: 25,
                 fontWeight: FontWeight.w800,
               ),
             ),
             const SizedBox(height: 7),
-            Text(
+            const Text(
               'Create. Chat. Imagine.',
               style: TextStyle(
                 color: AppTheme.textSecondary,
@@ -589,11 +793,59 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(height: 24),
             OutlinedButton.icon(
               onPressed: () {},
+              style: OutlinedButton.styleFrom(
+                foregroundColor: AppTheme.cyan,
+                side: BorderSide(
+                  color: AppTheme.cyan.withValues(alpha: 0.35),
+                ),
+              ),
               icon: const Icon(Icons.settings_rounded),
               label: const Text('Settings'),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildBottomNavigation() {
+    return NavigationBar(
+      backgroundColor: AppTheme.surface,
+      indicatorColor: AppTheme.primary.withValues(alpha: 0.18),
+      selectedIndex: _selectedIndex,
+      onDestinationSelected: (index) {
+        setState(() => _selectedIndex = index);
+      },
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home_rounded),
+          label: 'Home',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.grid_view_outlined),
+          selectedIcon: Icon(Icons.grid_view_rounded),
+          label: 'Tools',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.history_outlined),
+          selectedIcon: Icon(Icons.history_rounded),
+          label: 'History',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.person_outline_rounded),
+          selectedIcon: Icon(Icons.person_rounded),
+          label: 'Profile',
+        ),
+      ],
+    );
+  }
+
+  void _openChat() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => const ChatPage(),
       ),
     );
   }
