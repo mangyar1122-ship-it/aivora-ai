@@ -41,46 +41,55 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.summarize_rounded,
       name: 'Summarizer',
       subtitle: 'Shorten text',
+      accentColor: AppTheme.cyan,
     ),
     _AivoraTool(
       icon: Icons.translate_rounded,
       name: 'Translator',
       subtitle: 'Translate text',
+      accentColor: AppTheme.primary,
     ),
     _AivoraTool(
       icon: Icons.image_rounded,
       name: 'Text to Image',
       subtitle: 'Create images',
+      accentColor: AppTheme.secondary,
     ),
     _AivoraTool(
       icon: Icons.video_library_rounded,
       name: 'Text to Video',
       subtitle: 'Create videos',
+      accentColor: AppTheme.cyan,
     ),
     _AivoraTool(
       icon: Icons.mic_rounded,
       name: 'Text to Voice',
       subtitle: 'Generate voice',
+      accentColor: AppTheme.primary,
     ),
     _AivoraTool(
       icon: Icons.picture_as_pdf_rounded,
       name: 'PDF Chat',
       subtitle: 'Talk to PDFs',
+      accentColor: AppTheme.secondary,
     ),
     _AivoraTool(
       icon: Icons.description_rounded,
       name: 'Documents',
       subtitle: 'Create documents',
+      accentColor: AppTheme.cyan,
     ),
     _AivoraTool(
       icon: Icons.badge_rounded,
       name: 'Resume Builder',
       subtitle: 'Build your CV',
+      accentColor: AppTheme.primary,
     ),
     _AivoraTool(
       icon: Icons.music_note_rounded,
       name: 'AI Music',
       subtitle: 'Create music',
+      accentColor: AppTheme.secondary,
     ),
   ];
 
