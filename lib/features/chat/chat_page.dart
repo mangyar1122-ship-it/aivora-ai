@@ -35,7 +35,7 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     final model = FirebaseAI.googleAI().generativeModel(
-      model: 'gemini-3.5-flash-lite',
+      model: 'gemini-3.8-flash',
       generationConfig: generationConfig,
       tools: [
         Tool.urlContext(),
