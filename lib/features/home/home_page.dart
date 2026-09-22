@@ -294,8 +294,8 @@ class _HomePageState extends State<HomePage> {
           child: IconButton(
             onPressed: () {},
             icon: const Icon(
-              Icons.notifications_none_rounded,
-              color: AppTheme.textPrimary,
+              Icons.workspace_premium_rounded,
+              color: AppTheme.cyan,
             ),
           ),
         ),
