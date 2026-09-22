@@ -52,3 +52,6 @@ local-server/node_modules/
 local-server/.env
 local-server/*.env
 lib/features/chat/chat_page_before_ai_brain_upgrade.dart
+
+lib/features/chat/chat_page_before_service_connect.dart
+local-server/

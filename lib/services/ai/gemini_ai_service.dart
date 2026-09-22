@@ -57,6 +57,7 @@ class GeminiAiService implements AiService {
     }
   }
 
+  @override
   Future<bool> isAvailable() async {
     return true;
   }
