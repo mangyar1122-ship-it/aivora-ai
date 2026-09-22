@@ -573,9 +573,9 @@ class _HomePageState extends State<HomePage> {
       padding: const EdgeInsets.all(15),
       decoration: BoxDecoration(
         color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
-          color: AppTheme.primary.withValues(alpha: 0.14),
+          color: AppTheme.primary.withValues(alpha: 0.24),
         ),
       ),
       child: const Row(
@@ -583,7 +583,7 @@ class _HomePageState extends State<HomePage> {
           Icon(
             Icons.history_rounded,
             color: AppTheme.cyan,
-            size: 28,
+            size: 30,
           ),
           SizedBox(width: 12),
           Expanded(
@@ -591,7 +591,7 @@ class _HomePageState extends State<HomePage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'No recent activity',
+                  'Recent Activity',
                   style: TextStyle(
                     color: AppTheme.textPrimary,
                     fontSize: 13,
@@ -600,7 +600,7 @@ class _HomePageState extends State<HomePage> {
                 ),
                 SizedBox(height: 4),
                 Text(
-                  'Your recent AI work will appear here.',
+                  'Your latest AI creations will appear here.',
                   style: TextStyle(
                     color: AppTheme.textSecondary,
                     fontSize: 10.5,
