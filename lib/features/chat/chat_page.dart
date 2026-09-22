@@ -26,7 +26,7 @@ class _ChatPageState extends State<ChatPage> {
     super.initState();
 
     final thinkingConfig = ThinkingConfig.withThinkingLevel(
-      ThinkingLevel.medium,
+      ThinkingLevel.minimal,
     );
 
     final generationConfig = GenerationConfig(
