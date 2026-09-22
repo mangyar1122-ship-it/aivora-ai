@@ -468,20 +468,80 @@ Please try again.
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'AIVORA AI',
-          style: TextStyle(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_rounded,
+            color: AppTheme.textPrimary,
           ),
           onPressed: () {
             Navigator.pop(context);
           },
         ),
+        titleSpacing: 0,
+        title: Row(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [
+                    AppTheme.cyan,
+                    AppTheme.primary,
+                    AppTheme.secondary,
+                  ],
+                ),
+                borderRadius: BorderRadius.circular(13),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.cyan.withValues(alpha: 0.25),
+                    blurRadius: 16,
+                  ),
+                ],
+              ),
+              child: const Icon(
+                Icons.auto_awesome_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "AIVORA",
+                  style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                Text(
+                  "AI COMPANION",
+                  style: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 8,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.2,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+        actions: [
+          IconButton(
+            tooltip: "Premium",
+            onPressed: () {},
+            icon: const Icon(
+              Icons.workspace_premium_rounded,
+              color: AppTheme.cyan,
+            ),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -512,43 +572,132 @@ Please try again.
 
   Widget _buildWelcome() {
     return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(30),
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 28,
+          vertical: 30,
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 72,
-              height: 72,
+              width: 96,
+              height: 96,
               decoration: BoxDecoration(
+                shape: BoxShape.circle,
                 gradient: const LinearGradient(
                   colors: [
+                    AppTheme.cyan,
                     AppTheme.primary,
                     AppTheme.secondary,
                   ],
                 ),
-                borderRadius: BorderRadius.circular(22),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.cyan.withValues(alpha: 0.20),
+                    blurRadius: 35,
+                    spreadRadius: 4,
+                  ),
+                  BoxShadow(
+                    color: AppTheme.secondary.withValues(alpha: 0.18),
+                    blurRadius: 50,
+                  ),
+                ],
               ),
-              child: const Icon(
-                Icons.auto_awesome_rounded,
-                color: Colors.white,
-                size: 38,
+              child: Center(
+                child: Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    color: AppTheme.background,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.cyan.withValues(alpha: 0.30),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: AppTheme.cyan,
+                    size: 42,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 26),
+            RichText(
+              textAlign: TextAlign.center,
+              text: const TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Hello, I’m ",
+                    style: TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "AIVORA",
+                    style: TextStyle(
+                      color: AppTheme.cyan,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
             const Text(
-              'AIVORA AI',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'How can I help you today?',
+              "Your smart AI assistant",
+              textAlign: TextAlign.center,
               style: TextStyle(
                 color: AppTheme.textSecondary,
                 fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              "Ask me anything, create content,\nsolve problems, or explore powerful AI tools.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+                height: 1.55,
+              ),
+            ),
+            const SizedBox(height: 26),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 11,
+              ),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppTheme.primary.withValues(alpha: 0.20),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.bolt_rounded,
+                    color: AppTheme.cyan,
+                    size: 18,
+                  ),
+                  SizedBox(width: 7),
+                  Text(
+                    "Ready to create something amazing?",
+                    style: TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -573,50 +722,126 @@ Please try again.
   Widget _buildMessage(_ChatMessage message) {
     final isUser = message.isUser;
 
-    if (message.text.isEmpty && !isUser) {
+    if (message.text.isEmpty && isUser == false) {
       return Align(
         alignment: Alignment.centerLeft,
         child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(18),
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
           ),
-          child: const SizedBox(
-            width: 22,
-            height: 22,
-            child: CircularProgressIndicator(
-              strokeWidth: 2,
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppTheme.cyan.withValues(alpha: 0.18),
             ),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppTheme.cyan,
+                ),
+              ),
+              SizedBox(width: 10),
+              Text(
+                "AIVORA is thinking...",
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
       );
     }
 
     return Align(
-      alignment:
-          isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isUser
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
       child: Container(
         constraints: const BoxConstraints(
           maxWidth: 360,
         ),
-        margin: const EdgeInsets.only(
-          bottom: 12,
-        ),
+        margin: const EdgeInsets.only(bottom: 14),
         padding: const EdgeInsets.symmetric(
           horizontal: 16,
-          vertical: 12,
+          vertical: 13,
         ),
         decoration: BoxDecoration(
-          color: isUser
-              ? AppTheme.primary
-              : Theme.of(context).colorScheme.surface,
-          borderRadius: BorderRadius.circular(18),
+          gradient: isUser
+              ? const LinearGradient(
+                  colors: [
+                    AppTheme.primary,
+                    AppTheme.secondary,
+                  ],
+                )
+              : null,
+          color: isUser ? null : AppTheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isUser
+                ? AppTheme.primary.withValues(alpha: 0.35)
+                : AppTheme.cyan.withValues(alpha: 0.16),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isUser
+                  ? AppTheme.primary.withValues(alpha: 0.16)
+                  : AppTheme.cyan.withValues(alpha: 0.06),
+              blurRadius: 18,
+            ),
+          ],
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            if (isUser == false)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.cyan,
+                            AppTheme.secondary,
+                          ],
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 7),
+                    const Text(
+                      "AIVORA",
+                      style: TextStyle(
+                        color: AppTheme.cyan,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             SelectableText(
               message.text,
               contextMenuBuilder: (context, editableTextState) {
@@ -629,97 +854,608 @@ Please try again.
                         editableTextState.hideToolbar();
                         _copyText(message.text);
                       },
-                      label: 'Copy all',
+                      label: "Copy all",
                     ),
                   ],
                 );
               },
               style: TextStyle(
-                color: isUser ? Colors.white : null,
+                color: isUser
+                    ? Colors.white
+                    : AppTheme.textPrimary,
                 fontSize: 15,
-                height: 1.4,
+                height: 1.5,
               ),
             ),
-            if (!isUser && message.sources.isNotEmpty) ...[
-              const SizedBox(height: 12),
-              Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                    color: AppTheme.secondary.withValues(alpha: 0.25),
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Sources',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                      ),
+            if (isUser == false && message.sources.isNotEmpty)
+              ...[
+                const SizedBox(height: 14),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                    color: AppTheme.background.withValues(alpha: 0.55),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: AppTheme.secondary.withValues(alpha: 0.24),
                     ),
-                    const SizedBox(height: 6),
-                    ...message.sources.map(
-                      (source) => InkWell(
-                        onTap: () => _openWebSource(source.uri),
-                        borderRadius: BorderRadius.circular(10),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            vertical: 7,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.language_rounded,
+                            color: AppTheme.cyan,
+                            size: 17,
                           ),
-                          child: Row(
-                            children: [
-                              const Icon(
-                                Icons.language_rounded,
-                                size: 17,
-                              ),
-                              const SizedBox(width: 8),
-                              Expanded(
-                                child: Text(
-                                  source.title,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: const TextStyle(
-                                    fontSize: 13,
+                          SizedBox(width: 7),
+                          Text(
+                            "Sources",
+                            style: TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      ...message.sources.map(
+                        (source) => InkWell(
+                          onTap: () => _openWebSource(source.uri),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 7,
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.link_rounded,
+                                  color: AppTheme.textSecondary,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    source.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: AppTheme.textSecondary,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              const SizedBox(width: 6),
-                              const Icon(
-                                Icons.open_in_new_rounded,
-                                size: 15,
-                              ),
-                            ],
+                                const SizedBox(width: 6),
+                                const Icon(
+                                  Icons.open_in_new_rounded,
+                                  color: AppTheme.cyan,
+                                  size: 15,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
-            if (!isUser) ...[
-              const SizedBox(height: 6),
+              ],
+            if (isUser == false)
               Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   IconButton(
                     visualDensity: VisualDensity.compact,
-                    tooltip: 'Copy',
+                    tooltip: "Copy",
                     onPressed: () {
                       _copyText(message.text);
                     },
                     icon: const Icon(
                       Icons.copy_rounded,
-                      size: 18,
+                      color: AppTheme.textSecondary,
+                      size: 17,
                     ),
                   ),
                 ],
               ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInputArea() {
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Container(
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: AppTheme.cyan.withValues(alpha: 0.18),
+                ),
+              ),
+              child: IconButton(
+                tooltip: "Add",
+                onPressed: _isLoading ? null : _showPlusOptions,
+                icon: const Icon(
+                  Icons.add_rounded,
+                  color: AppTheme.cyan,
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Container(
+                decoration: BoxDecoration(
+                  color: AppTheme.surface,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: AppTheme.primary.withValues(alpha: 0.24),
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppTheme.primary.withValues(alpha: 0.08),
+                      blurRadius: 18,
+                    ),
+                  ],
+                ),
+                child: TextField(
+                  controller: _controller,
+                  enableInteractiveSelection: true,
+                  textInputAction: TextInputAction.send,
+                  onSubmitted: (_) {
+                    _sendMessage();
+                  },
+                  minLines: 1,
+                  maxLines: 5,
+                  decoration: const InputDecoration(
+                    hintText: "Message AIVORA AI...",
+                    filled: false,
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [
+                    AppTheme.cyan,
+                    AppTheme.primary,
+                    AppTheme.secondary,
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.cyan.withValues(alpha: 0.30),
+                    blurRadius: 20,
+                    spreadRadius: 1,
+                  ),
+                ],
+              ),
+              child: IconButton(
+                tooltip: "Send",
+                onPressed: _isLoading ? null : _sendMessage,
+                icon: const Icon(
+                  Icons.arrow_upward_rounded,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildWelcome() {
+    return Center(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.symmetric(
+          horizontal: 28,
+          vertical: 30,
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 96,
+              height: 96,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  colors: [
+                    AppTheme.cyan,
+                    AppTheme.primary,
+                    AppTheme.secondary,
+                  ],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppTheme.cyan.withValues(alpha: 0.20),
+                    blurRadius: 35,
+                    spreadRadius: 4,
+                  ),
+                  BoxShadow(
+                    color: AppTheme.secondary.withValues(alpha: 0.18),
+                    blurRadius: 50,
+                  ),
+                ],
+              ),
+              child: Center(
+                child: Container(
+                  width: 84,
+                  height: 84,
+                  decoration: BoxDecoration(
+                    color: AppTheme.background,
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: AppTheme.cyan.withValues(alpha: 0.30),
+                    ),
+                  ),
+                  child: const Icon(
+                    Icons.auto_awesome_rounded,
+                    color: AppTheme.cyan,
+                    size: 42,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 26),
+            RichText(
+              textAlign: TextAlign.center,
+              text: const TextSpan(
+                children: [
+                  TextSpan(
+                    text: "Hello, I’m ",
+                    style: TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  TextSpan(
+                    text: "AIVORA",
+                    style: TextStyle(
+                      color: AppTheme.cyan,
+                      fontSize: 28,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 10),
+            const Text(
+              "Your smart AI assistant",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 15,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+            const SizedBox(height: 14),
+            const Text(
+              "Ask me anything, create content,\nsolve problems, or explore powerful AI tools.",
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: AppTheme.textSecondary,
+                fontSize: 13,
+                height: 1.55,
+              ),
+            ),
+            const SizedBox(height: 26),
+            Container(
+              padding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 11,
+              ),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: AppTheme.primary.withValues(alpha: 0.20),
+                ),
+              ),
+              child: const Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.bolt_rounded,
+                    color: AppTheme.cyan,
+                    size: 18,
+                  ),
+                  SizedBox(width: 7),
+                  Text(
+                    "Ready to create something amazing?",
+                    style: TextStyle(
+                      color: AppTheme.textPrimary,
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _openWebSource(String uri) async {
+    final url = Uri.tryParse(uri);
+
+    if (url == null) {
+      return;
+    }
+
+    await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
+  Widget _buildMessage(_ChatMessage message) {
+    final isUser = message.isUser;
+
+    if (message.text.isEmpty && isUser == false) {
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.only(bottom: 14),
+          padding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 14,
+          ),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: AppTheme.cyan.withValues(alpha: 0.18),
+            ),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 18,
+                height: 18,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  color: AppTheme.cyan,
+                ),
+              ),
+              SizedBox(width: 10),
+              Text(
+                "AIVORA is thinking...",
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
+          ),
+        ),
+      );
+    }
+
+    return Align(
+      alignment: isUser
+          ? Alignment.centerRight
+          : Alignment.centerLeft,
+      child: Container(
+        constraints: const BoxConstraints(
+          maxWidth: 360,
+        ),
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 13,
+        ),
+        decoration: BoxDecoration(
+          gradient: isUser
+              ? const LinearGradient(
+                  colors: [
+                    AppTheme.primary,
+                    AppTheme.secondary,
+                  ],
+                )
+              : null,
+          color: isUser ? null : AppTheme.surface,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isUser
+                ? AppTheme.primary.withValues(alpha: 0.35)
+                : AppTheme.cyan.withValues(alpha: 0.16),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: isUser
+                  ? AppTheme.primary.withValues(alpha: 0.16)
+                  : AppTheme.cyan.withValues(alpha: 0.06),
+              blurRadius: 18,
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (isUser == false)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        gradient: LinearGradient(
+                          colors: [
+                            AppTheme.cyan,
+                            AppTheme.secondary,
+                          ],
+                        ),
+                      ),
+                      child: const Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                    ),
+                    const SizedBox(width: 7),
+                    const Text(
+                      "AIVORA",
+                      style: TextStyle(
+                        color: AppTheme.cyan,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            SelectableText(
+              message.text,
+              contextMenuBuilder: (context, editableTextState) {
+                return AdaptiveTextSelectionToolbar.buttonItems(
+                  anchors: editableTextState.contextMenuAnchors,
+                  buttonItems: [
+                    ...editableTextState.contextMenuButtonItems,
+                    ContextMenuButtonItem(
+                      onPressed: () {
+                        editableTextState.hideToolbar();
+                        _copyText(message.text);
+                      },
+                      label: "Copy all",
+                    ),
+                  ],
+                );
+              },
+              style: TextStyle(
+                color: isUser
+                    ? Colors.white
+                    : AppTheme.textPrimary,
+                fontSize: 15,
+                height: 1.5,
+              ),
+            ),
+            if (isUser == false && message.sources.isNotEmpty)
+              ...[
+                const SizedBox(height: 14),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(11),
+                  decoration: BoxDecoration(
+                    color: AppTheme.background.withValues(alpha: 0.55),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(
+                      color: AppTheme.secondary.withValues(alpha: 0.24),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Row(
+                        children: [
+                          Icon(
+                            Icons.language_rounded,
+                            color: AppTheme.cyan,
+                            size: 17,
+                          ),
+                          SizedBox(width: 7),
+                          Text(
+                            "Sources",
+                            style: TextStyle(
+                              color: AppTheme.textPrimary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      ...message.sources.map(
+                        (source) => InkWell(
+                          onTap: () => _openWebSource(source.uri),
+                          borderRadius: BorderRadius.circular(10),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 7,
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                  Icons.link_rounded,
+                                  color: AppTheme.textSecondary,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    source.title,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: AppTheme.textSecondary,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 6),
+                                const Icon(
+                                  Icons.open_in_new_rounded,
+                                  color: AppTheme.cyan,
+                                  size: 15,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            if (isUser == false)
+              Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    tooltip: "Copy",
+                    onPressed: () {
+                      _copyText(message.text);
+                    },
+                    icon: const Icon(
+                      Icons.copy_rounded,
+                      color: AppTheme.textSecondary,
+                      size: 17,
+                    ),
+                  ),
+                ],
+              ),
           ],
         ),
       ),
