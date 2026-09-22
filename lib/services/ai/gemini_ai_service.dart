@@ -45,6 +45,18 @@ class GeminiAiService implements AiService {
   }
 
   @override
+  Stream<String> generateTextStream(String prompt) async* {
+    try {
+      final response = _model.generateContentStream([Content.text(prompt)]);
+      await for (final chunk in response) {
+        final text = chunk.text ?? "";
+        if (text.isNotEmpty) yield text;
+      }
+    } catch (e) {
+      yield "[AI_ERROR] $e";
+    }
+  }
+
   Future<bool> isAvailable() async {
     return true;
   }

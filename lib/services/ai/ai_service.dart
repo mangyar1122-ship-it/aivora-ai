@@ -31,6 +31,7 @@ class AiResponse {
 abstract class AiService {
   /// Sends a text prompt to the AI.
   Future<AiResponse> generateText(String prompt);
+  Stream<String> generateTextStream(String prompt);
 
   /// Checks whether the AI service is ready.
   Future<bool> isAvailable();
