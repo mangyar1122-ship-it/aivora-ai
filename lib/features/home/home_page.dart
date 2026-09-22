@@ -448,14 +448,14 @@ class _HomePageState extends State<HomePage> {
   }) {
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(22),
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: color.withValues(alpha: 0.20),
+            color: color.withValues(alpha: 0.32),
           ),
         ),
         child: Column(
