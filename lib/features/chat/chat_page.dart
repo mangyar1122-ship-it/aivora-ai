@@ -30,7 +30,7 @@ class _ChatPageState extends State<ChatPage> {
     );
 
     final generationConfig = GenerationConfig(
-      maxOutputTokens: 15000,
+      maxOutputTokens: 8000,
       thinkingConfig: thinkingConfig,
     );
 
