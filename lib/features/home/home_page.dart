@@ -23,16 +23,19 @@ class _HomePageState extends State<HomePage> {
       icon: Icons.chat_bubble_rounded,
       name: 'AI Chat',
       subtitle: 'Ask anything',
+      accentColor: AppTheme.cyan,
     ),
     _AivoraTool(
       icon: Icons.edit_note_rounded,
       name: 'AI Writer',
       subtitle: 'Create content',
+      accentColor: AppTheme.primary,
     ),
     _AivoraTool(
       icon: Icons.auto_fix_high_rounded,
       name: 'Rewriter',
       subtitle: 'Improve text',
+      accentColor: AppTheme.secondary,
     ),
     _AivoraTool(
       icon: Icons.summarize_rounded,
@@ -520,7 +523,7 @@ class _HomePageState extends State<HomePage> {
           color: AppTheme.surface,
           borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: AppTheme.primary.withValues(alpha: 0.24),
+            color: tool.accentColor.withValues(alpha: 0.28),
           ),
         ),
         child: Column(
@@ -531,12 +534,12 @@ class _HomePageState extends State<HomePage> {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppTheme.primary.withValues(alpha: 0.12),
+                color: tool.accentColor.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 tool.icon,
-                color: AppTheme.cyan,
+                color: tool.accentColor,
                 size: 23,
               ),
             ),
@@ -855,10 +858,12 @@ class _AivoraTool {
   final IconData icon;
   final String name;
   final String subtitle;
+  final Color accentColor;
 
   const _AivoraTool({
     required this.icon,
     required this.name,
     required this.subtitle,
+    this.accentColor = AppTheme.primary,
   });
 }
