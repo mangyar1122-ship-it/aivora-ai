@@ -1,6 +1,8 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../core/theme/app_theme.dart';
 
@@ -36,6 +38,10 @@ class _ChatPageState extends State<ChatPage> {
     final model = FirebaseAI.googleAI().generativeModel(
       model: 'gemini-3.5-flash-lite',
       generationConfig: generationConfig,
+      tools: [
+        Tool.urlContext(),
+        Tool.googleSearch(),
+      ],
       systemInstruction: Content.system(
         '''
 You are AIVORA AI, the AI assistant inside the AIVORA AI app.
@@ -159,9 +165,39 @@ Do not use an older training date as today's date.
       );
 
       String fullReply = '';
+      final webSources = <_WebSource>[];
+      String? searchSuggestionsHtml;
 
       await for (final chunk in response) {
         final chunkText = chunk.text ?? '';
+
+        final groundingMetadata =
+            chunk.candidates.first.groundingMetadata;
+
+        if (groundingMetadata != null) {
+          searchSuggestionsHtml ??=
+              groundingMetadata.searchEntryPoint?.renderedContent;
+
+          for (final groundingChunk
+              in groundingMetadata.groundingChunks) {
+            final web = groundingChunk.web;
+
+            if (web != null &&
+                web.uri != null &&
+                web.uri!.isNotEmpty) {
+              final source = _WebSource(
+                title: web.title ?? web.uri!,
+                uri: web.uri!,
+              );
+
+              if (!webSources.any(
+                (item) => item.uri == source.uri,
+              )) {
+                webSources.add(source);
+              }
+            }
+          }
+        }
 
         if (chunkText.isEmpty) {
           continue;
@@ -177,6 +213,8 @@ Do not use an older training date as today's date.
           _messages[aiMessageIndex] = _ChatMessage(
             text: fullReply,
             isUser: false,
+            sources: List.unmodifiable(webSources),
+            searchSuggestionsHtml: searchSuggestionsHtml,
           );
         });
 
@@ -520,6 +558,19 @@ Please try again.
     );
   }
 
+  Future<void> _openWebSource(String uri) async {
+    final url = Uri.tryParse(uri);
+
+    if (url == null) {
+      return;
+    }
+
+    await launchUrl(
+      url,
+      mode: LaunchMode.externalApplication,
+    );
+  }
+
   Widget _buildMessage(_ChatMessage message) {
     final isUser = message.isUser;
 
@@ -590,6 +641,67 @@ Please try again.
                 height: 1.4,
               ),
             ),
+            if (!isUser && message.sources.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: AppTheme.secondary.withOpacity(0.25),
+                  ),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Sources',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    ...message.sources.map(
+                      (source) => InkWell(
+                        onTap: () => _openWebSource(source.uri),
+                        borderRadius: BorderRadius.circular(10),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 7,
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.language_rounded,
+                                size: 17,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  source.title,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              const Icon(
+                                Icons.open_in_new_rounded,
+                                size: 15,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             if (!isUser) ...[
               const SizedBox(height: 6),
               Row(
@@ -697,12 +809,26 @@ Please try again.
   }
 }
 
+class _WebSource {
+  final String title;
+  final String uri;
+
+  const _WebSource({
+    required this.title,
+    required this.uri,
+  });
+}
+
 class _ChatMessage {
   final String text;
   final bool isUser;
+  final List<_WebSource> sources;
+  final String? searchSuggestionsHtml;
 
   const _ChatMessage({
     required this.text,
     required this.isUser,
+    this.sources = const [],
+    this.searchSuggestionsHtml,
   });
 }
