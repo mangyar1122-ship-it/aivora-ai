@@ -658,70 +658,7 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildTools() {
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.fromLTRB(18, 22, 18, 30),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'AI Tools',
-            style: TextStyle(
-              color: AppTheme.textPrimary,
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: 7),
-          const Text(
-            'Everything you need in one AI workspace.',
-            style: TextStyle(
-              color: AppTheme.textSecondary,
-              fontSize: 13,
-            ),
-          ),
-          const SizedBox(height: 20),
-          Container(
-            decoration: BoxDecoration(
-              color: AppTheme.surface,
-              borderRadius: BorderRadius.circular(17),
-              border: Border.all(
-                color: AppTheme.primary.withValues(alpha: 0.15),
-              ),
-            ),
-            child: const TextField(
-              style: TextStyle(color: AppTheme.textPrimary),
-              decoration: InputDecoration(
-                hintText: 'Search AI tools...',
-                prefixIcon: Icon(
-                  Icons.search_rounded,
-                  color: AppTheme.textSecondary,
-                ),
-                border: InputBorder.none,
-              ),
-            ),
-          ),
-          const SizedBox(height: 20),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            itemCount: _tools.length,
-            gridDelegate:
-                const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 12,
-              childAspectRatio: 1.08,
-            ),
-            itemBuilder: (context, index) {
-              return _buildToolCard(_tools[index]);
-            },
-          ),
-        ],
-      ),
-    );
-  }
+
 
   Widget _buildHistory() {
     return ListView(

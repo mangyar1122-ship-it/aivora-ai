@@ -354,13 +354,7 @@ Please try again.
     );
   }
 
-  void _showVoiceMessage() {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Voice input is coming soon.'),
-      ),
-    );
-  }
+
 
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
