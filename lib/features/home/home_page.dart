@@ -324,7 +324,7 @@ class _HomePageState extends State<HomePage> {
         boxShadow: [
           BoxShadow(
             color: AppTheme.primary.withValues(alpha: 0.16),
-            blurRadius: 30,
+            blurRadius: 38,
           ),
         ],
       ),
@@ -374,7 +374,7 @@ class _HomePageState extends State<HomePage> {
                   Text(
                     'Your intelligent workspace',
                     style: TextStyle(
-                      color: Colors.white60,
+                      color: AppTheme.textSecondary,
                       fontSize: 11,
                     ),
                   ),
@@ -384,9 +384,9 @@ class _HomePageState extends State<HomePage> {
           ),
           const SizedBox(height: 20),
           const Text(
-            'Think. Create.\nGo beyond limits.',
+            'Think. Create.\nGo beyond limits. ⚡',
             style: TextStyle(
-              color: Colors.white,
+              color: AppTheme.cyan,
               fontSize: 25,
               height: 1.12,
               fontWeight: FontWeight.w800,
