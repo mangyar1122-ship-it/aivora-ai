@@ -513,14 +513,14 @@ class _HomePageState extends State<HomePage> {
           ),
         );
       },
-      borderRadius: BorderRadius.circular(20),
+      borderRadius: BorderRadius.circular(22),
       child: Container(
         padding: const EdgeInsets.all(15),
         decoration: BoxDecoration(
           color: AppTheme.surface,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(22),
           border: Border.all(
-            color: AppTheme.primary.withValues(alpha: 0.14),
+            color: AppTheme.primary.withValues(alpha: 0.24),
           ),
         ),
         child: Column(
