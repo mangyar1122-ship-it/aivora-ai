@@ -151,7 +151,7 @@ Do not use an older training date as today's date.
     final aiMessageIndex = _messages.length - 1;
 
     try {
-      final response = await _chat.sendMessageStream(
+      final response = _chat.sendMessageStream(
         Content.text(prompt),
       );
 
