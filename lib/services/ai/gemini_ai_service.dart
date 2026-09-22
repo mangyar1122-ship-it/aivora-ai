@@ -1,6 +1,7 @@
 import 'package:firebase_ai/firebase_ai.dart';
 
 import 'ai_service.dart';
+import 'prompts/aivora_system_prompt.dart';
 
 class GeminiAiService implements AiService {
   late final GenerativeModel _model;
@@ -20,6 +21,7 @@ class GeminiAiService implements AiService {
         Tool.urlContext(),
         Tool.googleSearch(),
       ],
+      systemInstruction: Content.system(aivoraSystemPrompt),
     );
   }
 
