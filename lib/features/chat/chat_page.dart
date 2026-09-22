@@ -2,7 +2,6 @@ import 'package:firebase_ai/firebase_ai.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import '../../core/theme/app_theme.dart';
 
@@ -649,7 +648,7 @@ Please try again.
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(14),
                   border: Border.all(
-                    color: AppTheme.secondary.withOpacity(0.25),
+                    color: AppTheme.secondary.withValues(alpha: 0.25),
                   ),
                 ),
                 child: Column(
