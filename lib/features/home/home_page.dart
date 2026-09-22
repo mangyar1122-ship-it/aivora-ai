@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../chat/chat_page.dart';
+import '../tools/tools_page.dart';
 import '../../core/theme/app_theme.dart';
 
 class HomePage extends StatefulWidget {
@@ -130,7 +131,7 @@ class _HomePageState extends State<HomePage> {
           index: _selectedIndex,
           children: [
             _buildHome(),
-            _buildTools(),
+            const ToolsPage(),
             _buildHistory(),
             _buildProfile(),
           ],
@@ -723,38 +724,133 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildHistory() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(30),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
+      children: [
+        Row(
           children: [
-            const Icon(
-              Icons.history_rounded,
-              color: AppTheme.cyan,
-              size: 70,
-            ),
-            const SizedBox(height: 18),
-            const Text(
-              'Your History',
-              style: TextStyle(
-                color: AppTheme.textPrimary,
-                fontSize: 25,
-                fontWeight: FontWeight.w800,
+            const Expanded(
+              child: Text(
+                "History",
+                style: TextStyle(
+                  color: AppTheme.textPrimary,
+                  fontSize: 25,
+                  fontWeight: FontWeight.w900,
+                ),
               ),
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Your conversations and generated content will appear here.',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: AppTheme.textSecondary,
-                fontSize: 13,
+            IconButton(
+              onPressed: () {},
+              icon: const Icon(
+                Icons.search_rounded,
+                color: AppTheme.cyan,
               ),
             ),
           ],
         ),
-      ),
+        const SizedBox(height: 18),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              colors: [
+                AppTheme.surface2,
+                AppTheme.surface,
+              ],
+            ),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppTheme.cyan.withValues(alpha: 0.18),
+            ),
+          ),
+          child: const Row(
+            children: [
+              Icon(
+                Icons.history_rounded,
+                color: AppTheme.cyan,
+                size: 30,
+              ),
+              SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Recent Activity",
+                      style: TextStyle(
+                        color: AppTheme.textPrimary,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                    SizedBox(height: 4),
+                    Text(
+                      "Your AI conversations and creations will appear here.",
+                      style: TextStyle(
+                        color: AppTheme.textSecondary,
+                        fontSize: 12,
+                        height: 1.4,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        const Text(
+          "RECENT",
+          style: TextStyle(
+            color: AppTheme.textSecondary,
+            fontSize: 11,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 1.4,
+          ),
+        ),
+        const SizedBox(height: 12),
+        Container(
+          padding: const EdgeInsets.symmetric(
+            vertical: 38,
+            horizontal: 24,
+          ),
+          decoration: BoxDecoration(
+            color: AppTheme.surface,
+            borderRadius: BorderRadius.circular(22),
+            border: Border.all(
+              color: AppTheme.primary.withValues(alpha: 0.16),
+            ),
+          ),
+          child: const Column(
+            children: [
+              Icon(
+                Icons.auto_awesome_rounded,
+                color: AppTheme.cyan,
+                size: 42,
+              ),
+              SizedBox(height: 14),
+              Text(
+                "No recent activity",
+                style: TextStyle(
+                  color: AppTheme.textPrimary,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
+              SizedBox(height: 7),
+              Text(
+                "Start a conversation or use an AI tool to see your activity here.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 12,
+                  height: 1.5,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
