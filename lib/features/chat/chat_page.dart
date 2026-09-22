@@ -239,11 +239,13 @@ Do not use an older training date as today's date.
         return;
       }
 
+      final errorMessage = _getFriendlyErrorMessage(e);
+
       setState(() {
         _isLoading = false;
 
         _messages[aiMessageIndex] = _ChatMessage(
-          text: 'AIVORA DEBUG ERROR:\n\n$e',
+          text: '$errorMessage\n\nAIVORA DEBUG ERROR:\n\n$e',
           isUser: false,
         );
       });
