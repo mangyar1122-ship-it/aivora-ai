@@ -17,10 +17,6 @@ class GeminiAiService implements AiService {
         maxOutputTokens: 8000,
         thinkingConfig: thinkingConfig,
       ),
-      tools: [
-        Tool.urlContext(),
-        Tool.googleSearch(),
-      ],
       systemInstruction: Content.system(aivoraSystemPrompt),
     );
   }
