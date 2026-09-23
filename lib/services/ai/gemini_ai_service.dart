@@ -12,7 +12,7 @@ class GeminiAiService implements AiService {
     );
 
     _model = FirebaseAI.googleAI().generativeModel(
-      model: 'gemini-3.8-flash',
+      model: 'gemini-3.5-flash-lite',
       generationConfig: GenerationConfig(
         maxOutputTokens: 8000,
         thinkingConfig: thinkingConfig,
