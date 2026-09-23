@@ -86,7 +86,7 @@ class GeminiAiService implements AiService {
         }
       }
     } catch (e) {
-      yield AiStreamChunk(text: "[AI_ERROR] $e");
+      yield AiStreamChunk(text: "[AI_ERROR] ${e.runtimeType}: $e");
     }
   }
 
