@@ -19,10 +19,48 @@ class _ChatPageState extends State<ChatPage> {
   final TextEditingController _controller = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   final List<_ChatMessage> _messages = [];
+  String _chatId = DateTime.now().microsecondsSinceEpoch.toString();
 
 
   bool _isLoading = false;
 
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedChat();
+  }
+
+  Future<void> _loadSavedChat() async {
+    final history = await ChatHistoryService.getHistory();
+    if (history.isEmpty || !mounted) return;
+
+    final saved = history.first;
+    if (saved.messages.isEmpty) return;
+
+    _chatId = saved.id;
+
+    setState(() {
+      _messages.clear();
+      _messages.addAll(
+        saved.messages.map(
+          (m) => _ChatMessage(
+            text: (m['text'] ?? '').toString(),
+            isUser: m['isUser'] == true,
+          ),
+        ),
+      );
+    });
+
+    _scrollToBottom();
+  }
+
+  void _startNewChat() {
+    setState(() {
+      _messages.clear();
+      _chatId = DateTime.now().microsecondsSinceEpoch.toString();
+    });
+  }
 
   Future<void> _sendMessage() async {
     final text = _controller.text.trim();
@@ -47,7 +85,15 @@ class _ChatPageState extends State<ChatPage> {
 
     final weekday = _weekdayName(now.weekday);
 
+    final previousMessages = _messages
+        .where((m) => m.text.trim().isNotEmpty)
+        .map((m) => '${m.isUser ? "User" : "AIVORA"}: ${m.text}')
+        .join("\n");
+
     final prompt = '''
+Conversation history:
+$previousMessages
+
 User message:
 $text
 
@@ -145,7 +191,23 @@ Do not use an older training date as today's date.
         return;
       }
 
-      setState(() {
+      await ChatHistoryService.saveConversation(
+      id: _chatId,
+      title: _messages.firstWhere(
+        (m) => m.isUser,
+        orElse: () => _ChatMessage(text: 'New conversation', isUser: true),
+      ).text,
+      messages: _messages
+          .where((m) => m.text.trim().isNotEmpty)
+          .map((m) => {
+                'text': m.text,
+                'isUser': m.isUser,
+                'createdAt': DateTime.now().toIso8601String(),
+              })
+          .toList(),
+    );
+
+    setState(() {
         _isLoading = false;
 
         if (fullReply.trim().isEmpty) {
@@ -155,9 +217,6 @@ Do not use an older training date as today's date.
           );
         }
       });
-      if (fullReply.trim().isNotEmpty) {
-        await ChatHistoryService.addConversation(title: text, preview: fullReply);
-      }
 
     } catch (e) {
       if (!mounted) {
@@ -456,6 +515,14 @@ Please try again.
           ],
         ),
         actions: [
+          IconButton(
+            tooltip: "New Chat",
+            onPressed: _startNewChat,
+            icon: const Icon(
+              Icons.add_comment_rounded,
+              color: AppTheme.cyan,
+            ),
+          ),
           IconButton(
             tooltip: "Premium",
             onPressed: () {},
