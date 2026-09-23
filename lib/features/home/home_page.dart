@@ -738,6 +738,220 @@ class _HomePageState extends State<HomePage> {
     }).toList();
   }
 
+  Future<void> _createFolder() async {
+    final controller = TextEditingController();
+
+    final name = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: const Text(
+          'Create Folder',
+          style: TextStyle(color: AppTheme.textPrimary),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: AppTheme.textPrimary),
+          decoration: const InputDecoration(
+            hintText: 'Folder name',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
+    );
+
+    controller.dispose();
+
+    if (name == null || name.trim().isEmpty) {
+      return;
+    }
+
+    await ChatHistoryService.createFolder(name);
+
+    if (!mounted) {
+      return;
+    }
+
+    await _loadFolders();
+
+    setState(() {
+      _selectedFolder = name.trim();
+    });
+  }
+
+  Future<void> _renameChat(ChatHistoryItem item) async {
+    final controller = TextEditingController(text: item.title);
+
+    final newTitle = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: const Text(
+          'Rename Chat',
+          style: TextStyle(color: AppTheme.textPrimary),
+        ),
+        content: TextField(
+          controller: controller,
+          autofocus: true,
+          style: const TextStyle(color: AppTheme.textPrimary),
+          decoration: const InputDecoration(
+            hintText: 'Chat name',
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, controller.text.trim()),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    controller.dispose();
+
+    if (newTitle == null || newTitle.trim().isEmpty) {
+      return;
+    }
+
+    await ChatHistoryService.renameConversation(
+      item.id,
+      newTitle.trim(),
+    );
+
+    if (mounted) {
+      await _loadHistory();
+    }
+  }
+
+  Future<void> _moveChat(ChatHistoryItem item) async {
+    final folders = await ChatHistoryService.getFolders();
+
+    if (!mounted) {
+      return;
+    }
+
+    final selected = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: const Text(
+          'Move Chat',
+          style: TextStyle(color: AppTheme.textPrimary),
+        ),
+        content: SizedBox(
+          width: double.maxFinite,
+          child: ListView(
+            shrinkWrap: true,
+            children: folders.map((folder) {
+              return ListTile(
+                leading: Icon(
+                  folder == item.folder
+                      ? Icons.radio_button_checked_rounded
+                      : Icons.folder_outlined,
+                  color: folder == item.folder
+                      ? AppTheme.cyan
+                      : AppTheme.textSecondary,
+                ),
+                title: Text(
+                  folder,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                  ),
+                ),
+                onTap: () => Navigator.pop(context, folder),
+              );
+            }).toList(),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+        ],
+      ),
+    );
+
+    if (selected == null || selected == item.folder) {
+      return;
+    }
+
+    await ChatHistoryService.moveConversation(
+      item.id,
+      selected,
+    );
+
+    if (mounted) {
+      await _loadHistory();
+    }
+  }
+
+  Future<void> _deleteChat(ChatHistoryItem item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppTheme.surface,
+        title: const Text(
+          'Delete Chat?',
+          style: TextStyle(color: AppTheme.textPrimary),
+        ),
+        content: Text(
+          'Delete "${item.title}" permanently?',
+          style: const TextStyle(
+            color: AppTheme.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) {
+      return;
+    }
+
+    await ChatHistoryService.deleteConversation(item.id);
+
+    if (!mounted) {
+      return;
+    }
+
+    await _loadHistory();
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Chat deleted'),
+        duration: Duration(seconds: 1),
+      ),
+    );
+  }
+
   Widget _buildHistory() {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 18, 16, 24),
@@ -760,8 +974,11 @@ class _HomePageState extends State<HomePage> {
                   context: context,
                   delegate: _HistorySearchDelegate(_historyItems),
                 );
+
                 if (query != null && mounted) {
-                  setState(() => _historySearch = query);
+                  setState(() {
+                    _historySearch = query;
+                  });
                 }
               },
               icon: const Icon(
@@ -771,7 +988,90 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
+
+        const SizedBox(height: 14),
+
+        SizedBox(
+          height: 42,
+          child: ListView(
+            scrollDirection: Axis.horizontal,
+            children: [
+              ChoiceChip(
+                label: const Text('All'),
+                selected: _selectedFolder == 'All',
+                onSelected: (_) {
+                  setState(() {
+                    _selectedFolder = 'All';
+                  });
+                },
+                selectedColor: AppTheme.primary.withValues(alpha: 0.30),
+                backgroundColor: AppTheme.surface,
+                labelStyle: TextStyle(
+                  color: _selectedFolder == 'All'
+                      ? AppTheme.cyan
+                      : AppTheme.textSecondary,
+                  fontWeight: FontWeight.w700,
+                ),
+                side: BorderSide(
+                  color: AppTheme.cyan.withValues(alpha: 0.20),
+                ),
+              ),
+
+              const SizedBox(width: 8),
+
+              ..._folders.map(
+                (folder) => Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ChoiceChip(
+                    avatar: const Icon(
+                      Icons.folder_outlined,
+                      size: 16,
+                    ),
+                    label: Text(folder),
+                    selected: _selectedFolder == folder,
+                    onSelected: (_) {
+                      setState(() {
+                        _selectedFolder = folder;
+                      });
+                    },
+                    selectedColor:
+                        AppTheme.primary.withValues(alpha: 0.30),
+                    backgroundColor: AppTheme.surface,
+                    labelStyle: TextStyle(
+                      color: _selectedFolder == folder
+                          ? AppTheme.cyan
+                          : AppTheme.textSecondary,
+                      fontWeight: FontWeight.w700,
+                    ),
+                    side: BorderSide(
+                      color: AppTheme.primary.withValues(alpha: 0.20),
+                    ),
+                  ),
+                ),
+              ),
+
+              ActionChip(
+                avatar: const Icon(
+                  Icons.add_rounded,
+                  size: 18,
+                ),
+                label: const Text('Folder'),
+                onPressed: _createFolder,
+                backgroundColor: AppTheme.surface,
+                labelStyle: const TextStyle(
+                  color: AppTheme.cyan,
+                  fontWeight: FontWeight.w700,
+                ),
+                side: BorderSide(
+                  color: AppTheme.cyan.withValues(alpha: 0.22),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         const SizedBox(height: 18),
+
         Container(
           padding: const EdgeInsets.all(20),
           decoration: BoxDecoration(
@@ -821,41 +1121,167 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
+
         const SizedBox(height: 24),
-        const Text(
-          "RECENT",
-          style: TextStyle(
-            color: AppTheme.textSecondary,
-            fontSize: 11,
-            fontWeight: FontWeight.w800,
-            letterSpacing: 1.4,
-          ),
+
+        Row(
+          children: [
+            const Expanded(
+              child: Text(
+                "RECENT",
+                style: TextStyle(
+                  color: AppTheme.textSecondary,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: 1.4,
+                ),
+              ),
+            ),
+            if (_selectedFolder != 'All')
+              Text(
+                _selectedFolder,
+                style: const TextStyle(
+                  color: AppTheme.cyan,
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+          ],
         ),
+
         const SizedBox(height: 12),
+
         if (_historyLoading)
-          const Center(child: Padding(padding: EdgeInsets.all(32), child: CircularProgressIndicator(color: AppTheme.cyan)))
+          const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32),
+              child: CircularProgressIndicator(
+                color: AppTheme.cyan,
+              ),
+            ),
+          )
         else if (_filteredHistory.isEmpty)
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 38, horizontal: 24),
-            decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(22), border: Border.all(color: AppTheme.primary.withValues(alpha: 0.16))),
-            child: const Column(children: [
-              Icon(Icons.auto_awesome_rounded, color: AppTheme.cyan, size: 42),
-              SizedBox(height: 14),
-              Text('No recent activity', style: TextStyle(color: AppTheme.textPrimary, fontSize: 16, fontWeight: FontWeight.w800)),
-              SizedBox(height: 7),
-              Text('Start a conversation or use an AI tool to see your activity here.', textAlign: TextAlign.center, style: TextStyle(color: AppTheme.textSecondary, fontSize: 12, height: 1.5)),
-            ]),
+            padding: const EdgeInsets.symmetric(
+              vertical: 38,
+              horizontal: 24,
+            ),
+            decoration: BoxDecoration(
+              color: AppTheme.surface,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(
+                color: AppTheme.primary.withValues(alpha: 0.16),
+              ),
+            ),
+            child: const Column(
+              children: [
+                Icon(
+                  Icons.auto_awesome_rounded,
+                  color: AppTheme.cyan,
+                  size: 42,
+                ),
+                SizedBox(height: 14),
+                Text(
+                  'No conversations found',
+                  style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+                SizedBox(height: 7),
+                Text(
+                  'Start a conversation or choose another folder.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 12,
+                    height: 1.5,
+                  ),
+                ),
+              ],
+            ),
           )
         else
-          ..._filteredHistory.map((item) => Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            decoration: BoxDecoration(color: AppTheme.surface, borderRadius: BorderRadius.circular(18), border: Border.all(color: AppTheme.primary.withValues(alpha: 0.16))),
-            child: ListTile(
-              leading: const CircleAvatar(backgroundColor: AppTheme.surface2, child: Icon(Icons.chat_bubble_outline_rounded, color: AppTheme.cyan)),
-              title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 14, fontWeight: FontWeight.w700)),
-              subtitle: Text(item.preview, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 12)),
+          ..._filteredHistory.map(
+            (item) => Container(
+              margin: const EdgeInsets.only(bottom: 10),
+              decoration: BoxDecoration(
+                color: AppTheme.surface,
+                borderRadius: BorderRadius.circular(18),
+                border: Border.all(
+                  color: AppTheme.primary.withValues(alpha: 0.16),
+                ),
+              ),
+              child: ListTile(
+                onTap: () => _openChat(item.id),
+                leading: const CircleAvatar(
+                  backgroundColor: AppTheme.surface2,
+                  child: Icon(
+                    Icons.chat_bubble_outline_rounded,
+                    color: AppTheme.cyan,
+                  ),
+                ),
+                title: Text(
+                  item.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                subtitle: Text(
+                  item.preview,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 12,
+                  ),
+                ),
+                trailing: PopupMenuButton<String>(
+                  icon: const Icon(
+                    Icons.more_vert_rounded,
+                    color: AppTheme.textSecondary,
+                  ),
+                  onSelected: (value) {
+                    if (value == 'rename') {
+                      _renameChat(item);
+                    } else if (value == 'move') {
+                      _moveChat(item);
+                    } else if (value == 'delete') {
+                      _deleteChat(item);
+                    }
+                  },
+                  itemBuilder: (context) => const [
+                    PopupMenuItem(
+                      value: 'rename',
+                      child: ListTile(
+                        leading: Icon(Icons.edit_rounded),
+                        title: Text('Rename'),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'move',
+                      child: ListTile(
+                        leading: Icon(Icons.drive_file_move_rounded),
+                        title: Text('Move to folder'),
+                      ),
+                    ),
+                    PopupMenuItem(
+                      value: 'delete',
+                      child: ListTile(
+                        leading: Icon(Icons.delete_outline_rounded),
+                        title: Text('Delete'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
-          )),
+          ),
       ],
     );
   }
