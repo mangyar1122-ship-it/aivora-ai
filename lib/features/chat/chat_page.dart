@@ -8,7 +8,9 @@ import '../../services/ai/gemini_ai_service.dart';
 import '../../services/history/chat_history_service.dart';
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({super.key});
+  final String? chatId;
+
+  const ChatPage({super.key, this.chatId});
 
   @override
   State<ChatPage> createState() => _ChatPageState();
@@ -35,7 +37,11 @@ class _ChatPageState extends State<ChatPage> {
     final history = await ChatHistoryService.getHistory();
     if (history.isEmpty || !mounted) return;
 
-    final saved = history.first;
+    final saved = widget.chatId == null
+      ? history.first
+      : history.where((item) => item.id == widget.chatId).firstOrNull;
+
+  if (saved == null) return;
     if (saved.messages.isEmpty) return;
 
     _chatId = saved.id;

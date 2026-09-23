@@ -633,49 +633,55 @@ class _HomePageState extends State<HomePage> {
   }
 
   Widget _buildRecentCard() {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(15),
-      decoration: BoxDecoration(
-        color: AppTheme.surface,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: AppTheme.primary.withValues(alpha: 0.24),
+    if (_historyItems.isEmpty) {
+      return Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(18),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.24)),
         ),
-      ),
-      child: const Row(
-        children: [
-          Icon(
-            Icons.history_rounded,
-            color: AppTheme.cyan,
-            size: 30,
-          ),
-          SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Recent Activity',
-                  style: TextStyle(
-                    color: AppTheme.textPrimary,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Your latest AI creations will appear here.',
-                  style: TextStyle(
-                    color: AppTheme.textSecondary,
-                    fontSize: 10.5,
-                  ),
-                ),
-              ],
+        child: const Row(
+          children: [
+            Icon(Icons.history_rounded, color: AppTheme.cyan, size: 30),
+            SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Recent Activity', style: TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w700)),
+                  SizedBox(height: 4),
+                  Text('Start a conversation to see it here.', style: TextStyle(color: AppTheme.textSecondary, fontSize: 10.5)),
+                ],
+              ),
             ),
+          ],
+        ),
+      );
+    }
+
+    final recent = _historyItems.take(3).toList();
+    return Column(
+      children: recent.map((item) => Container(
+        margin: const EdgeInsets.only(bottom: 8),
+        decoration: BoxDecoration(
+          color: AppTheme.surface,
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(color: AppTheme.primary.withValues(alpha: 0.18)),
+        ),
+        child: ListTile(
+          dense: true,
+          leading: const CircleAvatar(
+            backgroundColor: AppTheme.surface2,
+            child: Icon(Icons.chat_bubble_outline_rounded, color: AppTheme.cyan, size: 20),
           ),
-        ],
-      ),
+          title: Text(item.title, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textPrimary, fontSize: 13, fontWeight: FontWeight.w700)),
+          subtitle: Text(item.preview, maxLines: 1, overflow: TextOverflow.ellipsis, style: const TextStyle(color: AppTheme.textSecondary, fontSize: 11)),
+          trailing: const Icon(Icons.chevron_right_rounded, color: AppTheme.cyan),
+          onTap: () => _openChat(item.id),
+        ),
+      )).toList(),
     );
   }
 
@@ -1003,13 +1009,16 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  void _openChat() {
-    Navigator.push(
+  Future<void> _openChat([String? chatId]) async {
+    await Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (_) => const ChatPage(),
+        builder: (_) => ChatPage(chatId: chatId),
       ),
     );
+    if (mounted) {
+      await _loadHistory();
+    }
   }
 }
 
