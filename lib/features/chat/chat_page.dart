@@ -926,6 +926,11 @@ Please try again.
                   controller: _controller,
                   enableInteractiveSelection: true,
                   textInputAction: TextInputAction.send,
+                  cursorColor: AppTheme.cyan,
+                  style: const TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 16,
+                  ),
                   onSubmitted: (_) {
                     _sendMessage();
                   },
@@ -933,6 +938,10 @@ Please try again.
                   maxLines: 5,
                   decoration: const InputDecoration(
                     hintText: "Message AIVORA AI...",
+                    hintStyle: TextStyle(
+                      color: AppTheme.textSecondary,
+                      fontSize: 16,
+                    ),
                     filled: false,
                     border: InputBorder.none,
                     contentPadding: EdgeInsets.symmetric(
