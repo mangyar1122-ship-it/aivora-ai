@@ -22,14 +22,17 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   int _selectedIndex = 0;
   List<ChatHistoryItem> _historyItems = [];
+  List<String> _folders = ['General'];
   bool _historyLoading = false;
-  String _historySearch = "";
+  String _historySearch = '';
+  String _selectedFolder = 'All';
 
   @override
   void initState() {
     super.initState();
     _loadHistory();
     _loadProfileData();
+    _loadFolders();
   }
 
   Future<void> _loadProfileData() async {
@@ -40,6 +43,12 @@ class _HomePageState extends State<HomePage> {
       _customName = prefs.getString("aivora_profile_name") ?? "";
       _customEmail = prefs.getString("aivora_profile_email") ?? user?.email ?? "";
     });
+  }
+
+  Future<void> _loadFolders() async {
+    final folders = await ChatHistoryService.getFolders();
+    if (!mounted) return;
+    setState(() => _folders = folders);
   }
 
   Future<void> _loadHistory() async {
@@ -720,10 +729,12 @@ class _HomePageState extends State<HomePage> {
 
   List<ChatHistoryItem> get _filteredHistory {
     final query = _historySearch.trim().toLowerCase();
-    if (query.isEmpty) return _historyItems;
     return _historyItems.where((item) {
-      return item.title.toLowerCase().contains(query) ||
+      final folderMatch = _selectedFolder == 'All' || item.folder == _selectedFolder;
+      final textMatch = query.isEmpty ||
+          item.title.toLowerCase().contains(query) ||
           item.preview.toLowerCase().contains(query);
+      return folderMatch && textMatch;
     }).toList();
   }
 
