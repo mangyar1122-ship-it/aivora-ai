@@ -5,6 +5,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_theme.dart';
 import '../../services/ai/gemini_ai_service.dart';
+import '../../services/history/chat_history_service.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -154,6 +155,10 @@ Do not use an older training date as today's date.
           );
         }
       });
+      if (fullReply.trim().isNotEmpty) {
+        await ChatHistoryService.addConversation(title: text, preview: fullReply);
+      }
+
     } catch (e) {
       if (!mounted) {
         return;
