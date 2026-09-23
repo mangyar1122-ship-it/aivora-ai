@@ -881,11 +881,43 @@ Please try again.
     );
   }
 
+  Widget _buildQuickPromptChips() {
+    final prompts = ['Explain simply', 'Summarize', 'Write email', 'Translate Hindi', 'Write code'];
+    return SizedBox(
+      height: 42,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        padding: const EdgeInsets.symmetric(horizontal: 2),
+        itemCount: prompts.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          return ActionChip(
+            label: Text(prompts[index], style: const TextStyle(color: AppTheme.textPrimary, fontSize: 12, fontWeight: FontWeight.w500)),
+            backgroundColor: AppTheme.surface,
+            side: BorderSide(color: AppTheme.cyan.withValues(alpha: 0.22)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            onPressed: _isLoading ? null : () {
+              _controller.text = prompts[index];
+              _controller.selection = TextSelection.fromPosition(TextPosition(offset: _controller.text.length));
+            },
+          );
+        },
+      ),
+    );
+  }
+
   Widget _buildInputArea() {
     return SafeArea(
       top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 2),
+            child: _buildQuickPromptChips(),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10, 8, 10, 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
@@ -982,6 +1014,8 @@ Please try again.
             ),
           ],
         ),
+          ),
+        ],
       ),
     );
   }
