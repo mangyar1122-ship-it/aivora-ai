@@ -38,19 +38,18 @@ class _LoginPageState extends State<LoginPage> {
 
       if (!mounted) return;
 
-      final user = credential.user;
-      final name = user?.displayName;
-
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (_) => HomePage(userName: name),
+          builder: (_) => HomePage(
+            userName: credential.user?.displayName,
+          ),
         ),
       );
     } on FirebaseAuthException catch (e) {
       _showMessage(e.message ?? 'Login failed.');
     } catch (_) {
-      _showMessage('Something went wrong. Please try again.');
+      _showMessage('Something went wrong.');
     } finally {
       if (mounted) {
         setState(() => _loading = false);
@@ -86,29 +85,57 @@ class _LoginPageState extends State<LoginPage> {
               children: [
                 const Icon(
                   Icons.auto_awesome,
-                  size: 56,
+                  size: 64,
                   color: AppTheme.cyan,
                 ),
-                const SizedBox(height: 20),
+
+                const SizedBox(height: 18),
+
                 const Text(
-                  'Welcome to AIVORA',
+                  'AIVORA',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppTheme.textPrimary,
-                    fontSize: 30,
+                    fontSize: 32,
                     fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
                   ),
                 ),
+
                 const SizedBox(height: 8),
+
                 const Text(
-                  'Your intelligent AI assistant',
+                  'Your Intelligent AI Assistant',
                   textAlign: TextAlign.center,
                   style: TextStyle(
                     color: AppTheme.textSecondary,
                     fontSize: 15,
                   ),
                 ),
-                const SizedBox(height: 40),
+
+                const SizedBox(height: 45),
+
+                const Text(
+                  'Welcome Back',
+                  style: TextStyle(
+                    color: AppTheme.textPrimary,
+                    fontSize: 25,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+
+                const SizedBox(height: 8),
+
+                const Text(
+                  'Login to continue to AIVORA',
+                  style: TextStyle(
+                    color: AppTheme.textSecondary,
+                    fontSize: 14,
+                  ),
+                ),
+
+                const SizedBox(height: 25),
+
                 TextField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -120,7 +147,9 @@ class _LoginPageState extends State<LoginPage> {
                     hintText: 'Email address',
                   ),
                 ),
+
                 const SizedBox(height: 16),
+
                 TextField(
                   controller: _passwordController,
                   obscureText: _obscurePassword,
@@ -144,7 +173,9 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                 ),
-                const SizedBox(height: 24),
+
+                const SizedBox(height: 25),
+
                 SizedBox(
                   height: 54,
                   child: ElevatedButton(
@@ -166,7 +197,9 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                   ),
                 ),
-                const SizedBox(height: 18),
+
+                const SizedBox(height: 20),
+
                 TextButton(
                   onPressed: () {
                     Navigator.push(
@@ -177,7 +210,7 @@ class _LoginPageState extends State<LoginPage> {
                     );
                   },
                   child: const Text(
-                    'Create a new AIVORA account',
+                    "Don't have an account? Create Account",
                   ),
                 ),
               ],
@@ -199,23 +232,42 @@ class SignUpPage extends StatefulWidget {
 class _SignUpPageState extends State<SignUpPage> {
   final _nameController = TextEditingController();
   final _emailController = TextEditingController();
+  final _mobileController = TextEditingController();
   final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
 
   bool _loading = false;
   bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   Future<void> _signUp() async {
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
+    final mobile = _mobileController.text.trim();
     final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty) {
+    if (name.isEmpty ||
+        email.isEmpty ||
+        mobile.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
       _showMessage('Please fill all fields.');
+      return;
+    }
+
+    if (mobile.length != 10) {
+      _showMessage('Please enter a valid 10-digit mobile number.');
       return;
     }
 
     if (password.length < 6) {
       _showMessage('Password must be at least 6 characters.');
+      return;
+    }
+
+    if (password != confirmPassword) {
+      _showMessage('Passwords do not match.');
       return;
     }
 
@@ -243,7 +295,7 @@ class _SignUpPageState extends State<SignUpPage> {
     } on FirebaseAuthException catch (e) {
       _showMessage(e.message ?? 'Account creation failed.');
     } catch (_) {
-      _showMessage('Something went wrong. Please try again.');
+      _showMessage('Something went wrong.');
     } finally {
       if (mounted) {
         setState(() => _loading = false);
@@ -263,7 +315,9 @@ class _SignUpPageState extends State<SignUpPage> {
   void dispose() {
     _nameController.dispose();
     _emailController.dispose();
+    _mobileController.dispose();
     _passwordController.dispose();
+    _confirmPasswordController.dispose();
     super.dispose();
   }
 
@@ -280,23 +334,37 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const SizedBox(height: 20),
+              const Icon(
+                Icons.person_add_alt_1,
+                size: 58,
+                color: AppTheme.cyan,
+              ),
+
+              const SizedBox(height: 18),
+
               const Text(
-                'Create your AIVORA account',
+                'Join AIVORA',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.textPrimary,
-                  fontSize: 26,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 8),
+
               const Text(
-                'Your name will appear on the AIVORA home screen.',
+                'Create your AIVORA account',
+                textAlign: TextAlign.center,
                 style: TextStyle(
                   color: AppTheme.textSecondary,
+                  fontSize: 14,
                 ),
               ),
-              const SizedBox(height: 32),
+
+              const SizedBox(height: 30),
+
               TextField(
                 controller: _nameController,
                 textCapitalization: TextCapitalization.words,
@@ -305,10 +373,12 @@ class _SignUpPageState extends State<SignUpPage> {
                 ),
                 decoration: const InputDecoration(
                   prefixIcon: Icon(Icons.person_outline),
-                  hintText: 'Your name',
+                  hintText: 'Full name',
                 ),
               ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 15),
+
               TextField(
                 controller: _emailController,
                 keyboardType: TextInputType.emailAddress,
@@ -320,7 +390,26 @@ class _SignUpPageState extends State<SignUpPage> {
                   hintText: 'Email address',
                 ),
               ),
-              const SizedBox(height: 16),
+
+              const SizedBox(height: 15),
+
+              TextField(
+                controller: _mobileController,
+                keyboardType: TextInputType.phone,
+                maxLength: 10,
+                style: const TextStyle(
+                  color: AppTheme.textPrimary,
+                ),
+                decoration: const InputDecoration(
+                  prefixText: '+91  ',
+                  prefixIcon: Icon(Icons.phone_outlined),
+                  hintText: 'Mobile number',
+                  counterText: '',
+                ),
+              ),
+
+              const SizedBox(height: 15),
+
               TextField(
                 controller: _passwordController,
                 obscureText: _obscurePassword,
@@ -344,7 +433,36 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
               ),
-              const SizedBox(height: 24),
+
+              const SizedBox(height: 15),
+
+              TextField(
+                controller: _confirmPasswordController,
+                obscureText: _obscureConfirmPassword,
+                style: const TextStyle(
+                  color: AppTheme.textPrimary,
+                ),
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.lock_reset_outlined),
+                  hintText: 'Confirm password',
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      setState(() {
+                        _obscureConfirmPassword =
+                            !_obscureConfirmPassword;
+                      });
+                    },
+                    icon: Icon(
+                      _obscureConfirmPassword
+                          ? Icons.visibility_outlined
+                          : Icons.visibility_off_outlined,
+                    ),
+                  ),
+                ),
+              ),
+
+              const SizedBox(height: 25),
+
               SizedBox(
                 height: 54,
                 child: ElevatedButton(
@@ -365,6 +483,13 @@ class _SignUpPageState extends State<SignUpPage> {
                           ),
                         ),
                 ),
+              ),
+
+              const SizedBox(height: 15),
+
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Already have an account? Login'),
               ),
             ],
           ),
