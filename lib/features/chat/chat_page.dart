@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../core/theme/app_theme.dart';
@@ -242,6 +243,10 @@ Please try again.
     ];
 
     return days[weekday - 1];
+  }
+
+  Future<void> _shareText(String text) async {
+    await SharePlus.instance.share(ShareParams(text: text, subject: "AIVORA AI Response"));
   }
 
   Future<void> _copyText(String text) async {
@@ -869,6 +874,18 @@ Please try again.
                     },
                     icon: const Icon(
                       Icons.copy_rounded,
+                      color: AppTheme.textSecondary,
+                      size: 17,
+                    ),
+                  ),
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    tooltip: "Share",
+                    onPressed: () {
+                      _shareText(message.text);
+                    },
+                    icon: const Icon(
+                      Icons.share_rounded,
                       color: AppTheme.textSecondary,
                       size: 17,
                     ),
